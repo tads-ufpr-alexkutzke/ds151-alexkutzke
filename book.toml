@@ -1,0 +1,6 @@
+[book]
+authors = ["Alex Kutzke"]
+language = "en"
+multilingual = false
+src = "src"
+title = "DS151 - Desenvolvimento Mobile - Prof. Alex Kutzke"
