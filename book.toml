@@ -9,3 +9,5 @@ title = "DS151 - Desenvolvimento Mobile - Prof. Alex Kutzke"
 additional-css = ["./theme/catppuccin.css"]
 default-theme = "latte"
 preferred-dark-theme = "mocha"
+
+[preprocessor.alerts]
