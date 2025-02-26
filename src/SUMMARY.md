@@ -1,5 +1,6 @@
 # Summary
 
+- [Capa](./00_capa.md)
 - [Introdução ao Desenvolvimento Android](./01_intro.md)
 - [Android Studio e Estrutura de Projetos](./02_android_studio.md)
 - [Fundamentos de Kotlin para Android](./03_kotlin.md)
