@@ -2,7 +2,7 @@
 
 ## Plano de ensino e avaliação
 
-Consultar moodle da disciplina (<https://www.tads.ufpr.br>).
+Consultar moodle da disciplina (<https://www.ufprvirtual.ufpr.br>).
 
 ## O que aprenderemos?
 
@@ -10,9 +10,9 @@ Como desenvolver aplicativos nativos para Android utilizando Kotlin e Android St
 
 ## Como aprenderemos?
 
-Por meio de aulas teóricas e práticas. Toda aula marcada com "P" no plano de
-ensino indica uma aula prática que será composta por um exercício a ser entregue
-ao professor na própria aula.
+Por meio de aulas teóricas e práticas.
+Aulas práticas que serão compostas por um exercício a ser entregue ao professor
+na própria aula.
 
 Todas as entregas de exercícios serão feitas pelo moodle e utilizando links de repositórios
 criados pelos alunos no gitlab do curso (gitlab.com).
@@ -24,7 +24,7 @@ desenvolvimento de aplicativos para Android envolve, entre outras coisas,
 o estudo (e o uso) de vários exemplos de código prontos.
 Isso facilita o processo de desenvolvimento, uma vez
 que boa parte do trabalho acaba se tornando a ligação de pedaços de código
-já funcionais (montando lego =P). Mas, após um certo amadurecimento do
+já funcionais. Mas, após um certo amadurecimento do
 conhecimento é necessário que a compreensão de como esses trechos de códigos são
 formados seja expandida.
 
@@ -32,7 +32,7 @@ Portanto, é necessário praticar para que os exemplos sejam apreendidos e
 aprendidos de forma adequada. Não se assuste com a quantidade de códigos novos
 no início da disciplina. A ideia é que eles se tornem, pouco a pouco, mais
 "palatáveis"[.](http://www.quickmeme.com/img/60/6091f3946fbb257fc235f10bd1911a15f1037ce6c14cdede25c8277aa5e5a467.jpg)
-Além disso, utilizaremos uma linguagem nova - o [Kotlin](https://www.freecodecamp.org/news/content/images/2019/07/meme.jpeg)[.](https://me.me/i/google-kotlin-java-java-no-you-didn%E2%80%99t-1c90464fb0e14f0b84e9adf63ad468e1)
+Além disso, utilizaremos uma linguagem nova - o Kotlin.
 
 ## Android
 
@@ -40,7 +40,7 @@ Além disso, utilizaremos uma linguagem nova - o [Kotlin](https://www.freecodeca
   - Mais de 2bi de dispositivos ativos;
 - Além do sistema operacional, inclui:
   - Middleware (comunicação entre aplicativos);
-  - Aplicações-chave;
+  - Aplicações-chave (telefone, câmera, etc);
 - Kernel do Linux como base;
 - Open-source ( <http://source.android.com> ):
   - Licença Apache;
@@ -48,8 +48,8 @@ Além disso, utilizaremos uma linguagem nova - o [Kotlin](https://www.freecodeca
   - Entretanto, para ter Apps do Google, o sistema deve ser homologado;
 - Primeira versão lançada em 2008;
 - **API Level** é um número sequencial que identifica a versão do Android
-  (também possui o nome de um doce);
-- Estamos indo para a API Level 30, versão 11:
+  (cada versão possui o nome de um doce);
+- Estamos indo para a API Level 36, versão 16:
   - Para saber mais: <https://en.wikipedia.org/wiki/Android_version_history>
 - É importante conhecer as versões do Android para sabermos quais as APIs,
   classes e recursos estão disponíveis para nossos aplicativos em certos
@@ -57,7 +57,7 @@ Além disso, utilizaremos uma linguagem nova - o [Kotlin](https://www.freecodeca
 
 ## Android Studio
 
-<img src="https://img.devrant.com/devrant/rant/r_1798706_9DEHY.jpg" width="400px">
+![Meme android](./res/images/aula_01/android_meme.jpg)
 
 - O Android Studio é o IDE (Integrated Development Environment) padrão para
   desenvolvimento de aplicações Android;
@@ -72,7 +72,7 @@ Além disso, utilizaremos uma linguagem nova - o [Kotlin](https://www.freecodeca
 
 <https://developer.android.com/studio/>
 
-- Em geral, utilizaremos a versão 3.6;
+- A versão utilizada nesse material é a `Android Studio Meerkat | 2024.3.1`;
 - O pacote baixado já traz todas as dependências necessárias:
   - OpenJDK;
   - Gradle;
@@ -88,20 +88,20 @@ Além disso, utilizaremos uma linguagem nova - o [Kotlin](https://www.freecodeca
 - Nele, é possível baixar e instalar componentes do SDK:
   - Na aba **SDK Platforms**, clique em **Show Package Details**;
   - Marque, pelo menos, os seguintes itens:
-    - Android 9.0 (Pie):
-      - Android SDK Platform 28;
-      - Sources for Android 28;
-      - Google Play Intel x86 Atom System Image;
+    - Android 14.0 (UpsideDownCake) - ou o que funcionar nos computadores do lab:
+      - Android SDK Platform 34;
+      - Sources for Android 34;
   - Na aba **SDK Tools** adicione, ao menos, os itens:
     - Android SDK Build-Tools;
     - Android Emulator;
     - Android SDK Platform-Tools;
-    - Android SDK Tools;
-    - Documentation for Android SDK;
+    - Android SDK Command-line Tools;
   - Por fim, clique em **Apply** para finalizar;
   - Aguarde o download e a instalação.
 
 ![SDK Manager](./res/images/aula_01/sdk_manager.png)
+
+![SDK Tools](./res/images/aula_01/sdk_tools.png)
 
 ## Kotlin
 
@@ -119,8 +119,7 @@ Além disso, utilizaremos uma linguagem nova - o [Kotlin](https://www.freecodeca
 ## Mais recursos
 
 - Developer Guides Official: <https://developer.android.com/guide>
-- [Sobre o Android](aula_01_historico_android.pdf) - Slides de uma disciplina antiga (Prototipação de Aplicativos Móveis).
 
-# Referências
+## Referências
 
 - Glauber, Nelson, Dominando o Android com Kotlin, São Paulo : Novatec, 2019, 3ed.

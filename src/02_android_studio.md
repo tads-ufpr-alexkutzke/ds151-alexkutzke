@@ -3,14 +3,14 @@
 A aula tem como objetivo criar um primeiro aplicativo Android e analisar sua
 estrutura principal.
 
-## Iniciando um novo projeto com Android Studio
+## Iniciando um novo projeto com [Android Studio](./res/images/aula_02/99_meme_vim.jpg)
 
 - Para criar um novo aplicativo no Android Studio:
 
   - Em sua tela inicial, selecione a opção **Start a new Android Studio
     project** ou **File > New > New Project**;
 
-    ![Create New Project](res/images/aula_02/novo_projeto.png)
+    ![Create New Project](res/images/aula_02/01_novo_projeto.png)
 
   - A tela acima permite a escolha de um template para a **Activity**:
     - **Activity** é a classe responsável por criar uma tela na aplicação Android;
@@ -18,24 +18,22 @@ estrutura principal.
     - Toda activity tem seu conteúdo visual definido em arquivos XML, conhecidos como "Arquivos de layout";;
   - Selecione a opção **Empty Activity** para um primeiro exemplo;
 
-    ![Configurações do Projeto](res/images/aula_02/config_proj.png)
+    ![Configurações do Projeto](res/images/aula_02/02_config_proj.png)
 
   - Na sequência é necessário acrescentar as primeiras configurações da aplicação. São elas:
     - **Name**: nome que aparecerá no aparelho;
     - **Package Name**: nome do pacote. Este nome deve ser único!
     - **Save location**: onde o projeto será salvo no computador;
-    - **Language**: a linguagem a ser utilizada (selecione kotlin);
-    - **Minimum API Level**: qual a versão mínima do Android que o aparelho deve possuir para executar a aplicação. Procuraremos sempre utilizar, no mínimo, a API Level 21 (Android Lollipop);
-    - **This project will support instant apps**: aplicativos que não necessitam ser instalados pelo usuário. Não abordaremos na disciplina. Deixe desmarcado;
-    - **Use AndroidX artifacts**: indica o uso de bibliotecas **Jetpack**. Sempre selecione essa opção.
+    - **Minimum API Level**: qual a versão mínima do Android que o aparelho deve possuir para executar a aplicação. Procuraremos sempre utilizar, no mínimo, a API Level 24 (Android Nougat);
+    - **Build configuration language**: define scripts de build padrão para Kotlin;
 
-- Após criar o novo projeto, o Android Studio irá realizar verificações de dependências necessárias para realização do build do projeto. Espere pacientemente. Isso pode envolver alguns downloads:
+- Após criar o novo projeto, o Android Studio irá realizar verificações de dependências necessárias para realização do build do projeto. [Espere pacientemente](./res/images/aula_02/99_meme_gradle.jpg). Isso pode envolver alguns downloads:
 
   - Além disso, ele pode iniciar o processo de "Indexing";
   - Esse processo é o reconhecimento dos arquivos do projeto para que o Android Studio consiga executar todas as suas funcionalidades;
   - Novamente, aguarde pacientemente. :)
 
-    ![Tela Novo Projeto](res/images/aula_02/novo_proj_window.png)
+    ![Tela Novo Projeto](res/images/aula_02/03_novo_proj.png)[^1]
 
 ## Android Jetpack
 
@@ -51,7 +49,10 @@ estrutura principal.
   - Como esse é um processo em transição, ainda existem vários projetos de aplicativos que utilizam as bibliotecas antigas;
   - O objetivo é que todos migrem para o Jetpack:
     - O próprio Android Studio possui uma opção para migrar projetos para o Jetpack (**Refactor > Migrate to Android X**);
-- Mais informações: https://developer.android.com/jetpack/
+- Recentemente o **Jetpack Compose** foi lançado[^2]:
+  - Forma mais simples de gerar layouts para aplicações;
+  - Substitui os arquivos ~~horríveis~~ de layout XML;
+- Mais informações: <https://developer.android.com/jetpack/>
 
 ## Estrutura de um projeto Android
 
@@ -59,7 +60,7 @@ estrutura principal.
 - Selecione o tipo **Project**;
 - Você verá uma organização semelhante a essa:
 
-  ![Organização do Projeto](res/images/aula_02/project.png)
+  ![Organização do Projeto](res/images/aula_02/04_project.png)
 
 - Analisaremos detalhes dessa estrutura a seguir.
 
@@ -68,29 +69,36 @@ estrutura principal.
 - O arquivo **AndroidManifest.xml** serve como um arquivo central de configuração do aplicativo;
 - Os dados utilizados na tela de configuração do aplicativo estão aqui:
 
-  ```xml
-  <?xml version="1.0" encoding="utf-8"?>
-  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="br.ufpr.tads.helloworld">
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-      <application
-          android:allowBackup="true"
-          android:icon="@mipmap/ic_launcher"
-          android:label="@string/app_name"
-          android:roundIcon="@mipmap/ic_launcher_round"
-          android:supportsRtl="true"
-          android:theme="@style/AppTheme">
-          <activity android:name=".MainActivity">
-              <intent-filter>
-                  <action android:name="android.intent.action.MAIN" />
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.HelloWorldTADS"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.HelloWorldTADS">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-                  <category android:name="android.intent.category.LAUNCHER" />
-              </intent-filter>
-          </activity>
-      </application>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 
-  </manifest>
-  ```
+</manifest>
+```
 
 - Todas as activities que serão exibidas para os usuários deverão estar declaradas no **AndroidManifest.xml**;
 - Note que a **action** `android.intent.action.MAIN` indica qual activity é o ponto de entrada da aplicação:
@@ -106,7 +114,7 @@ estrutura principal.
 - Esse identificador fica armazenado na classe `R`;
 - Por exemplo:
 
-  - Na pasta `res/mipmap-mdpi`, existe um arquivo chamado `ic_launcher.png`;
+  - Na pasta `res/mipmap-mdpi`, existe um arquivo chamado `ic_launcher.webp`;
   - É possível acessar esse arquivo pelo identificado `R.mipmap.ic_launcher` em qualquer código Kotlin da aplicação:
     - Nos arquivos xml, ao invés de utilizarmos a classe R, utilizamos o sinal `@` para referenciarmos algum recurso;
   - Vejamos mais uma vez um trecho do _AndroidManifest.xml_:
@@ -121,7 +129,7 @@ estrutura principal.
 
   ```xml
   <resources>
-    <string name="app_name">Hello World</string>
+    <string name="app_name">Hello World TADS</string>
   </resources>
   ```
 
@@ -130,7 +138,13 @@ estrutura principal.
     - No xml: `@string/app_name`;
   - Alguns mapeamentos de recursos comuns são mostrados a seguir:
 
-    ![Mapeamento de recursos](res/images/aula_02/tabela_recursos_e_mapeamentos.png)
+| Recurso | ID da Classe R | Arquivo XML |
+| ------------- | -------------- | -------------- |
+| res/mipmap/ic launcher.png | IR.mipmap.ic_launcher | @mipmap/ic_launchertem1 |
+|res/drawable/imagem.png | R.drawable.imagem | @drawable/imagem|
+|res/layout/activity_main.xml | R.layout.activity_main | @layout/activity main|
+|res/menu/menu_main.xml | R.menu.menu main | @menu/menu_main|
+|res/values/strings.xml  `<string name="ola">` | R.string.ola | @string/ola|
 
 - O sistema de identificação dos recursos na aplicação é mais esperto do que parece. Mais a frente veremos alguns detalhes interessantes.
 
@@ -139,16 +153,51 @@ estrutura principal.
 - Nosso primeiro código kotlin:
 
 ```kotlin
-package br.ufpr.tads.helloworld
+package com.example.helloworldtads
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.helloworldtads.ui.theme.HelloWorldTADSTheme
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        enableEdgeToEdge()
+        setContent {
+            HelloWorldTADSTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Greeting(
+                        name = "Android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    HelloWorldTADSTheme {
+        Greeting("Android")
     }
 }
 ```
@@ -158,21 +207,24 @@ class MainActivity : AppCompatActivity() {
   - Extensão do arquivo (.kt);
   - Sem `;` no final do comandos (é opcional);
   - Operador de herança: `:`:
-    - Classe `MainActivity` está herdando `AppCompatActivity` (que é uma subclasse de `Activity`, mas que permite que recurso mais novos do Android sejam utilizados em versões antigas);
+    - Classe `MainActivity` está herdando `ComponentActivity`;
   - Toda classe herda de `Any` e não de `Object`;
   - Ao sobreescrever um método, é necessário utilizar a palavra-chave `override`;
   - Toda função (ou método) tem a seguinte sintaxe:
     - `<modificador> fun nomeDaFuncao(<parametros>) : <tipo de retorno>`:
+
       ```kotlin
       private fun soma(a:Int, b:Int): Int {
         return a + b
       }
       ```
+
   - Não existem tipos primitivos. Todos são classes;
   - Possui o recurso de **nulabilidade** (_nullability_):
     - É obrigatório declarar se um atributo, variável ou parâmetro pode ser nulo ou não;
     - Se sim, adiciona-se um `?` ao tipo do item. Ex.: `Int?`;
     - Outros exemplos:
+
       ```kotlin
       var a:String = "Kotlin"
       a = null // não compila! "a" não aceita nulo
@@ -183,15 +235,16 @@ class MainActivity : AppCompatActivity() {
       val lenB1 = if (b != null) b.length else -1
       val lenB2 = b?.length ?: -1 // "Elvis operator"
       ```
+
     - `var` indica variável, enquanto `val` indica constante;
     - Possuí inferência automática de tipos;
     - Estrutura if/else sempre retorna um valor;
-    - O _Elvis Operator_ (`?:`) serve para verificar se determinada expressão é nula e, caso positivo, retorna uma valor não nulo.
+    - O _Elvis Operator_ (`?:`) serve para verificar se determinada expressão é nula e, caso positivo, retorna um valor não nulo.
 
 - Sobre o código da **MainActivity**:
-  - O método `onCreate(Bundle)` é chamado quando a Activity é criada e nele é chamado o método `setContentView(int)` para informar qual é o arquivo de layout dessa tela (qual o seu aspecto visual);
+  - O método `onCreate(Bundle)` é chamado quando a Activity é criada e nele é chamado o método `setContent` para informar qual é o componente a ser desenhado na tela;
 
-### Arquivo de Layout
+### Arquivo de Layout (como _era_ com arquivos XML)
 
 - Os arquivos de layout são arquivos XML que definem a estrutura visual de uma ou mais activities;
 - Localizam-se na pasta `res/layout`;
@@ -200,7 +253,7 @@ class MainActivity : AppCompatActivity() {
 
   - Este pode ser utilizado com a interface gráfica (Design) ou de texto;
 
-    ![Edição de Layout](res/images/aula_02/edicao_de_layout.png)
+    ![Edição de Layout](res/images/aula_02/05_edicao_de_layout.png)
 
   - O layout da nossa MainActivity possui o seguinte conteúdo xml:
 
@@ -233,17 +286,20 @@ class MainActivity : AppCompatActivity() {
 ## Configuração do Aparelho
 
 - Para executar nossa aplicação em um aparelho real é necessário, primeiramente, configurar o aparelho:
+
   1. Acesse o menu **Sobre o telefone** nas configurações do aparelho (provavelmente no menu **Sistema**);
-  2. Toque **7 vezes** no item **Número da Versão (ou **Build Number\*\* ou qualquer outro nome parecido com isso);
+  2. Toque **7 vezes** no item **Número da Versão** (ou **Build Number** ou qualquer outro nome parecido com isso);
   3. Você verá o aviso "Você agora é um desenvolvedor";
   4. Isso habilitará o menu **Opções de desenvolvedor** nas configurações do aparelho;
   5. Nesse menu, ative a opção **Depuração USB (USB Debugging)**;
   6. Agora ao conectar o aparelho ao computador com um cabo USB, o Android Studio será capaz de reconhecê-lo:
 
-     1. Pode ser que uma mensagem de confirmação apareça no aparelha. Apenas confirme;
+     1. Pode ser que uma mensagem de confirmação apareça no aparelho. Apenas confirme;
      2. Normalmente, em dispositivos Unix, o aparelho é reconhecido automaticamente. No windows, às vezes, é necessário baixar o driver do aparelho no site do fabricante.
+     
+     ![Sobre o telefone](res/images/aula_02/06_info_sw.jpg)
 
-     ![Opções de desenvolvedor](res/images/aula_02/opcoes_de_desenvolvedor.png)
+     ![Opções de desenvolvedor](res/images/aula_02/07_opcoes_dev.jpg)
 
 ## Android Virtual Device
 
@@ -252,7 +308,7 @@ class MainActivity : AppCompatActivity() {
 - Uma das vantagens do AVD é a possibilidade de testar o aplicativo em diferentes tipos de dispositivos (tamanho de tela, resolução, recursos, etc);
 - Para computadores com processador Intel é possível instalar o HAXM (Hardware Accelerated Execution Manager):
   - Nos casos em que há compatibilidade, o Android Studio já instala esse recurso automaticamente;
-- Para criar um AVD, basta acessar o menu **Tools > AVD Manager** no Android Studio e seguir as instruções;
+- Para criar um AVD, basta acessar o menu **Tools > AVD Manager** ou **Tools > Device Manager** no Android Studio e seguir as instruções;
 - Em um dado momento da configuração, será necessário selecionar uma imagem de sistema. Ou seja, qual a versão do Android que o emulador irá utilizar:
   - Nesse momento, o download da imagem deverá ser realizado.
 - Existem outros emuladores de Android que não são oficiais da empresa Google.
@@ -261,16 +317,16 @@ class MainActivity : AppCompatActivity() {
 
 - Uma vez você tenha um celular conectado ao seu computador pela porta USB ou um AVD pronto, o Android Studio irá reconhecer esse aparelho como um alvo para execução da sua aplicação:
 
-  ![Aparelho reconhecido](res/images/aula_02/aparelho_reconhecido.png)
+  ![Aparelho reconhecido](res/images/aula_02/08_aparelho_reconhecido.png)
 
-- Nesse momento, basta clicar no botão **Run app** (botão verde em formato de _play_) ou utilizar o atalho **Shift+F10**;
+- Nesse momento, basta clicar no botão **Run app** (botão verde em formato de _play_);
 - Ao fazer isso, sua aplicação será compilada e instalada no dispositivo, e inicializada automaticamente:
 
-  ![Primeiro aplicativo](res/images/aula_02/aplicativo_inicial.png)
+  ![Primeiro aplicativo](res/images/aula_02/09_aplicativo_inicial.png)
 
 ## Processo de Compilação
 
-- O Android Studio utiliza o _Gradle_ (https://www.gradle.org) como ferramenta para gerenciamento do build dos aplicativos;
+- O Android Studio utiliza o _Gradle_ (<https://www.gradle.org>) como ferramenta para gerenciamento do build dos aplicativos;
 - Essa ferramenta é responsável por toda a configuração e inclusão/download de dependências para o processo de compilação do aplicativo;
 - O Gradle é uma aplicação completa, independente do Android Studio:
   - Sua interface mais comumente utilizada é pela linha de comando;
@@ -280,40 +336,64 @@ class MainActivity : AppCompatActivity() {
 - O arquivo `build.gradle` do nosso módulo app contém algo semelhante a isso:
 
 ```gradle
-apply plugin: 'com.android.application'
-
-apply plugin: 'kotlin-android'
-
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+}
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    namespace = "com.example.helloworldtads"
+    compileSdk = 35
+
     defaultConfig {
-        applicationId "br.ufpr.tads.helloworld"
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.example.helloworldtads"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+    buildFeatures {
+        compose = true
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.core:core-ktx:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
 ```
 
@@ -322,39 +402,15 @@ dependencies {
 - Esses plugins possuem as informações necessárias para que a compilação seja adequada às necessidades do projeto (Android + Kotlin);
 - No bloco `android` residem as configurações específicas para o plugin android;
 - Ao final do arquivo, o bloco `dependencies` define as dependências de bibliotecas externas ou módulos necessários pelo projeto:
-
   - Cada dependência pode ter a versão específica no final de sua linha;
-
 - O arquivo `build.gradle` da raiz do projeto possui definições que serão utilizadas em todos os módulos:
 
 ```gradle
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-buildscript {
-    ext.kotlin_version = '1.3.50'
-    repositories {
-        google()
-        jcenter()
-
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
 }
 ```
 
@@ -365,8 +421,8 @@ task clean(type: Delete) {
 - Todos os recursos de uma aplicação (strings, imagens, estilos, layouts, etc.) devem, obrigatoriamente, estar na pasta `res/`;
 - Cada subdiretório dessa pasta tem, entretanto, objetivos específicos. Os principais são:
   - **anim/** e **animator/**: arquivos XML de animações quadro-a-quadro ou de efeito;
-  - **drawable/**: arquivos de imagens da aplicação _.jpg ou _.png, ou ainda arquivos XML que descrevem algo que será desenhado na tela;
-  - **font/**: arquivos de fontes _.ttf ou _.otf, ou arquivos XML que descrevem famílias de fontes;
+  - **drawable/**: arquivos de imagens da aplicação _.jpg ou_.png, ou ainda arquivos XML que descrevem algo que será desenhado na tela;
+  - **font/**: arquivos de fontes _.ttf ou_.otf, ou arquivos XML que descrevem famílias de fontes;
   - **layout/**: arquivos XML com a definição do conteúdo visual das telas;
   - **menu/**: arquivos XML com as opções de menu;
   - **mipmap/**: ícone da aplicação;
@@ -382,7 +438,7 @@ task clean(type: Delete) {
 
   - Para isso, é preciso apenas criar variações nos diretórios de recursos adicionando **sufixos** especiais aos seus nomes:
 
-    ![Tabela sufixos](res/images/aula_02/tabela_sufixos.png)
+    ![Tabela sufixos](res/images/aula_02/10_tabela_sufixos.png)
 
 - É possível combinarmos sufixos. Por exemplo:
   - `layout-pr-rBR-large`: layouts a serem utilizados em aparelhos configurados em português brasileiro e com uma tela grande;
@@ -448,9 +504,11 @@ task clean(type: Delete) {
 
 - Dessa forma, é possível adicionar imagens de diferentes tamanhos (em diferentes pastas de recursos) para que sejam selecionadas as melhor adaptadas a qualidade de tela do dispositivo;
 - É possível, também, definir recursos de acordo com a orientação atual da tela do dispositivo (horizontal ou vertical):
+
   - A tabela a seguir apresenta exemplos de recursos utilizados em diferentes orientações de tela:
 
     ![Tabela Orientação](res/images/aula_02/tabela_orientacao.png)
+
 - Para determinarmos se uma tela é pequena ou grande, temos a seguinte lista de categorias:
 
   ![Tabela Tamanho Tela](res/images/aula_02/tabela_tamanho_tela.png)
@@ -526,36 +584,36 @@ task clean(type: Delete) {
   10. Altere o **ID** do Plain Text para `editText` e apague sua propriedade **text**. O layout ficará semelhante a esse:
 
       ```xml
-      	<?xml version="1.0" encoding="utf-8"?>
-      	<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      			xmlns:app="http://schemas.android.com/apk/res-auto"
-      			xmlns:tools="http://schemas.android.com/tools"
-      			android:layout_width="match_parent"
-      			android:layout_height="match_parent"
-      			tools:context=".MainActivity">
+       <?xml version="1.0" encoding="utf-8"?>
+       <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+         xmlns:app="http://schemas.android.com/apk/res-auto"
+         xmlns:tools="http://schemas.android.com/tools"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         tools:context=".MainActivity">
 
-      			<EditText
-      					android:id="@+id/editText"
-      					android:layout_width="wrap_content"
-      					android:layout_height="wrap_content"
-      					android:ems="10"
-      					android:inputType="textPersonName"
-      					android:text=""
-      					app:layout_constraintBottom_toBottomOf="parent"
-      					app:layout_constraintEnd_toEndOf="parent"
-      					app:layout_constraintStart_toStartOf="parent"
-      					app:layout_constraintTop_toTopOf="parent" />
+         <EditText
+           android:id="@+id/editText"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:ems="10"
+           android:inputType="textPersonName"
+           android:text=""
+           app:layout_constraintBottom_toBottomOf="parent"
+           app:layout_constraintEnd_toEndOf="parent"
+           app:layout_constraintStart_toStartOf="parent"
+           app:layout_constraintTop_toTopOf="parent" />
 
-      			<Button
-      					android:id="@+id/buttonToast"
-      					android:layout_width="wrap_content"
-      					android:layout_height="wrap_content"
-      					android:layout_marginTop="47dp"
-      					android:text="@string/main_button_toast"
-      					app:layout_constraintEnd_toEndOf="parent"
-      					app:layout_constraintStart_toStartOf="parent"
-      					app:layout_constraintTop_toBottomOf="@+id/editText" />
-      	</androidx.constraintlayout.widget.ConstraintLayout>
+         <Button
+           android:id="@+id/buttonToast"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginTop="47dp"
+           android:text="@string/main_button_toast"
+           app:layout_constraintEnd_toEndOf="parent"
+           app:layout_constraintStart_toStartOf="parent"
+           app:layout_constraintTop_toBottomOf="@+id/editText" />
+       </androidx.constraintlayout.widget.ConstraintLayout>
       ```
 
   11. Agora adicione o seguinte código a sua Main Activity:
@@ -647,8 +705,11 @@ class MainActivity : AppCompatActivity() {
 
 Os códigos utilizados nessa aula podem ser encontrados no seguinte repositório:
 
-https://gitlab.com/ds151-alexkutzke/ds151-aula-02-codes
+<https://gitlab.com/ds151-alexkutzke/ds151-aula-02-codes>
 
 # Sobre este material
 
 - Este material tem como referência principal o livro Glauber, Nelson, Dominando o Android com Kotlin, São Paulo : Novatec, 2019, 3ed.
+
+[^1]: O tema da interface é o Catppuchin Latte.
+[^2]: Razão para eu tentar desenvolvimento nativo novamente. Passei um tempo com React Native.

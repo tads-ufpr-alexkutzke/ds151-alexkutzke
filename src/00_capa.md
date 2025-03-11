@@ -11,6 +11,3 @@ Prof. Alexander Robert Kutzke
 ---
 
 Material da disciplina DS151 - Desenvolvimento Mobile.
-
-> [!NOTE]
-> Teste de nota
