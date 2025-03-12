@@ -734,9 +734,10 @@ Os códigos utilizados nessa aula podem ser encontrados no seguinte repositório
 
 <https://gitlab.com/ds151-alexkutzke/ds151-aula-02-codes>
 
-# Sobre este material
+## Referências
 
-- Este material tem como referência principal o livro Glauber, Nelson, Dominando o Android com Kotlin, São Paulo : Novatec, 2019, 3ed.
+- Google, Developer Guides <https://developer.android.com/guide> acessado em 12/03/2025.
+- Glauber, Nelson, Dominando o Android com Kotlin, São Paulo : Novatec, 2019, 3ed.
 
 ## Antigo (para referência)
 
