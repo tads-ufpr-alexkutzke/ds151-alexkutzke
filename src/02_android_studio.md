@@ -453,58 +453,52 @@ plugins {
 
   ```xml
   <resources>
-      <string name="app_name">Hello</string>
-      <string name="hello_world">Hello World!</string>
+      <string name="app_name">Hello World TADS</string>
+      <string name="test">This is a test</string>
   </resources>
   ```
 
-- Agora, no arquivo `res/layout/activity_main.xml` referencie essa string:
+- Agora, no arquivo `MainActivity.kt` referencie essa string:
 
-  ```xml
-  <androidx.constraintlayout.widget.ConstraintLayout
-      ...
-      <TextView
-              android:text="@string/hello_world"
-              ...
-  </androidx.constraintlayout.widget.ConstraintLayout>
-  ```
+```kotlin
+Greeting(
+    name = getString(R.string.test), // ⬅️ Altere aqui
+    modifier = Modifier.padding(innerPadding)
+)
+```
 
 - É recomendado que todo texto utilizado em um aplicativo esteja registrado apenas em arquivos de recursos;
 - Agora clique sobre a pasta `app/src/main/res` e escolha a opção **New > Android Resource File**:
-
-  ![Tela de Novo Recuro](res/images/aula_02/novo_recurso.png)
-
 - Adicione o nome `strings.xml` e selecione opção **Locale** e clique no botão **>>**;
 - Selecione português e clique em **OK**;
-
-  ![Tela de Novo Recuro 2](res/images/aula_02/novo_recurso_2.png)
+  
+  ![Tela de Novo Recuro](res/images/aula_02/11_novo_recurso.png)
 
 - Agora adicione o seguinte conteúdo ao arquivo criado:
 
 ```xml
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Olá</string>
-    <string name="hello_world">Olá Mundo!</string>
+    <string name="app_name">Olá Mundo TADS</string>
+    <string name="test">Isso é um Teste</string>
 </resources>
 ```
 
 - Compile e execute o aplicativo;
 - Altere a configuração de Idioma do seu aparelho e veja que a aplicação se adapta de maneira automática.
 
-  ![App traduzido](res/images/aula_02/app_traduzido.png)
+  ![App traduzido](res/images/aula_02/12_app_traduzido.png)
 
 ## DPI, Orientação e DIP
 
 - O Android possui uma especificação própria no que diz respeito ao tamanho e qualidade de tela de um dispositivo;
-- Um dos itens para definir a qualidade de um tela é a unidade _Dots per Inch_ (Pontos por polegadas) ou **DPI**:
-
+- Um dos itens para definir a qualidade de uma tela é a unidade _Dots per Inch_ (Pontos por polegadas) ou **DPI**:
   - O Android classifica os dispositivos em categorias de acordo com a quantidade de DPI existente. São elas:
 
     ![Tabela DPI](res/images/aula_02/tabela_dpi.png)
 
-- Dessa forma, é possível adicionar imagens de diferentes tamanhos (em diferentes pastas de recursos) para que sejam selecionadas as melhor adaptadas a qualidade de tela do dispositivo;
+- Dessa forma, é possível adicionar imagens de diferentes tamanhos (em diferentes pastas de recursos) para que sejam selecionadas as melhores adaptadas à qualidade de tela do dispositivo;
 - É possível, também, definir recursos de acordo com a orientação atual da tela do dispositivo (horizontal ou vertical):
-
   - A tabela a seguir apresenta exemplos de recursos utilizados em diferentes orientações de tela:
 
     ![Tabela Orientação](res/images/aula_02/tabela_orientacao.png)
@@ -514,7 +508,6 @@ plugins {
   ![Tabela Tamanho Tela](res/images/aula_02/tabela_tamanho_tela.png)
 
 - Perceba que a unidade agora é **DP** (ou **DIP** - \*Density Independent Pixels):
-
   - Essa é uma unidade que leva em consideração a quantidade de pixels na tela em sua área física;
   - Ou seja, quanto mais pixels tivermos por área, melhor será a qualidade da tela;
   - O DIP de uma tela é calculado da seguinte maneira:
@@ -528,7 +521,7 @@ plugins {
     ![Conta DIP](res/images/aula_02/tabela_conta_dip.png)
 
   - Logo a tela irá se enquadrar na categoria _large_, pois tem 680x512dp;
-  - A unidade DP é mais precisa para media a qualidade das telas;
+  - A unidade DP é mais precisa para medir a qualidade das telas;
   - Para saber mais informações sobre seu dispositivo, adicione o seguinte código no método `onCreate(Bundle)` da MainActivity:
 
     ```kotlin
@@ -564,7 +557,190 @@ plugins {
     - Ou ainda, nas configurações do Android Studio, habilite a auto importação;
   - Agora, após executar a aplicação, consulte o menu **View > Tool Windows > Logcat** para verificar a saída do Log.
 
-## `findViewByID` e evento de clique
+## Jetpack Compose
+
+- Nova forma de produzir layouts de aplicações no Android Nativo;
+  - Substitui os antigos arquivos XML de views;
+  - É a forma padrão e indicada para a criação de novos layouts;
+- Traz muitas das ideias dos frameworks React Native e Flutter para o Android Nativo;
+
+  - O que torna a ideia muito interessante, unindo o melhor dos dois mundos;
+
+- Sistema de componentes de interface;
+  - Cada componente da interface será uma função do tipo _Composable_;
+  - A intenção é que o desenvolvedor crie uma coleção de funções, ou seja, de componentes, para que sejam reutilizadas na aplicação ou, inclusive, em outros projetos;
+
+### Funções Composable
+
+- São funções Kotlin que possuem o modificador `@Composable`:
+
+  - O modificador permite que a função tenha acesso a outras funções do pacote _Composable_.
+
+- Tudo continua igual:
+  - O arquivo `AndroidManifest.xml` indica qual _Activity_ é o _Entry Point_ da aplicação;
+  - Essa _Activity_ determina o seu layout a partir da função `setContent`:
+    - A diferença é que, ao invés de utilizar um arquivo XML de View, agora a função `setContent` recebe chamadas de funções _Composable_;
+
+> [!Note]
+>
+> - Diferença entre componentes `Surface` e `Scaffold`:
+>   - São estruturas fundamentais de layout. Algo como containers;
+>   - Porém, `Scaffold` torna mais fácil o tratamento de área cobertas pelo Sistema Operacional (como barras de notificação, notch de câmera, botões de navegação, etc.);
+>   - Isso é ainda mais importante após a decisão do Google de que as [aplicações devem usar `enableEdgeToEdge()`](https://developer.android.com/about/versions/15/behavior-changes-15#edge-to-edge).
+>     - Isso significa que a aplicação é que deve tomar conta dessas áreas cobertas, ocupando a tela de "borda à borda";
+>   - Com o `Surface` esse controle se torna bem mais complexo.
+
+```Kotlin
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            BasicsCodelabTheme {
+                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
+                    Greeting(
+                        name = "Android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    BasicsCodelabTheme {
+        Greeting("Android")
+    }
+}
+```
+
+- Adicionar `Surface` em volta do `Text` e mudar a cor com `Surface(color = MaterialTheme.colorScheme.primary)`:
+  - A cor do texto muda automaticamente pois o material Design tem definições padrão para cores.
+
+```Kotlin
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Surface( color = MaterialTheme.colorScheme.secondary ) {
+        Text(
+            text = "Hello Alex!",
+            modifier = modifier
+        )
+    }
+}
+```
+
+#### Modifiers
+
+- _Composables_ geralmente possuem o parâmetro `modifier` para gerar alterações no seu layout:
+  - Geralmente definem formas como o componente deve ser comportar em relação ao seu componente antecessor na hierarquia;
+  - _Padding, Margin, Display_, etc.
+
+```kotlin
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Surface(color = MaterialTheme.colorScheme.primary) {
+        Text(
+            text = "Hello $name!",
+            modifier = modifier.padding(24.dp)
+        )
+    }
+}
+```
+
+- É sempre interessante que um componente receba como parâmetro um objeto `Modifier` e passe esse parâmetro como argumento para o componente filho.
+
+- Modifier `weight` ajuda a posicionar elementos. Algo como no Flex do CSS.
+
+#### Layouts Básicos
+
+- `Columns`, `Row`, `Box`;
+
+#### Botões
+
+- `Button`: último argumento é um _trailing lamba_, ou seja um bloco de código:
+  - _Trailing lambdas_, quando são o último argumento, podem ser passados para fora dos parênteses dos argumentos da função;
+  - O que estiver dentro desse bloco será o conteúdo do botão.
+  - Precisa adicionar o argumento `onClick = {}`;
+
+### Estado de componentes
+
+- Muito similar ao estado do React Native;
+
+- Algumas variáveis do componente podem ser monitoradas pelo Composable:
+
+  - Quando alteradas, o componente é redesenhado (a função é executada novamente): _Recomposition_
+  - Componentes podem ser reexecutados em qualquer ordem e frequentemente;
+
+- Para que o Composable observer uma variável utilize `mutableStateOf`;
+  - Além disso, para que a variável não perca o seu valor entre execuções, adicione `remember`:
+
+```Kotlin
+    val expanded = remember { mutableStateOf(false) }
+```
+
+- Utilize, nesse exemplo, `expanded.value` para acessar ou alterar o valor do estado;
+
+```Kotlin
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+  var expanded: MutableState<Boolean> = remember { mutableStateOf(false) }
+  Surface( color = MaterialTheme.colorScheme.secondary, modifier = modifier.padding(4.dp) ) {
+      Row(modifier = modifier.padding(24.dp)){
+          Column(modifier = modifier.padding(4.dp).weight(0.8F)){
+              Text(
+                  text = "Hello",
+              )
+              Text(
+                  text = "${name}!",
+              )
+          }
+          ElevatedButton(
+              modifier = modifier.weight(1.0F),
+              onClick = {
+                  expanded.value = !expanded.value
+              }
+          ) {
+              Text(if (expanded.value) "Show less" else "Show more")
+          }
+      }
+  }
+}
+
+```
+
+## Debug no Android Studio
+
+- Para realizar o debug da aplicação, apenas marque as linhas em que deseja adicionar um breakpoint:
+
+  ![Breakpoint](res/images/aula_02/breakpoint.png)
+
+- Na sequência, basta clicar no botão **Debug 'app'**;
+- Enquanto o breakpoint estiver ativo, é possível inspecionar as variáveis da aplicação na janela **Debug**;
+
+## Códigos da aula
+
+Os códigos utilizados nessa aula podem ser encontrados no seguinte repositório:
+
+<https://gitlab.com/ds151-alexkutzke/ds151-aula-02-codes>
+
+# Sobre este material
+
+- Este material tem como referência principal o livro Glauber, Nelson, Dominando o Android com Kotlin, São Paulo : Novatec, 2019, 3ed.
+
+## Antigo (para referência)
+
+### `findViewByID` e evento de clique
 
 - Assim como na programação Web, é necessário que exista algum tipo de comunicação entre o layout (tela e componentes) e o código de execução da aplicação (Activities);
 - Para tanto, faremos um exemplos de interação entre layout e a MainActivity:
@@ -656,7 +832,7 @@ plugins {
   }
   ```
 
-## Kotlin Android Extensions
+### Kotlin Android Extensions
 
 - O método `findViewById(int)` é padrão do Android e bastante utilizado para acessar elementos do layout;
 - Entretanto, com o plugin **Kotlin Android Extensions**, dentre outras coisas, permite que o acesso aos elementos do layout seja mais direto;
@@ -692,24 +868,6 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-## Debug no Android Studio
-
-- Para realizar o debug da aplicação, apenas marque as linhas em que deseja adicionar um breakpoint:
-
-  ![Breakpoint](res/images/aula_02/breakpoint.png)
-
-- Na sequência, basta clicar no botão **Debug 'app'**;
-- Enquanto o breakpoint estiver ativo, é possível inspecionar as variáveis da aplicação na janela **Debug**;
-
-## Códigos da aula
-
-Os códigos utilizados nessa aula podem ser encontrados no seguinte repositório:
-
-<https://gitlab.com/ds151-alexkutzke/ds151-aula-02-codes>
-
-# Sobre este material
-
-- Este material tem como referência principal o livro Glauber, Nelson, Dominando o Android com Kotlin, São Paulo : Novatec, 2019, 3ed.
 
 [^1]: O tema da interface é o Catppuchin Latte.
 [^2]: Razão para eu tentar desenvolvimento nativo novamente. Passei um tempo com React Native.
