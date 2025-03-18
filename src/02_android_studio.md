@@ -15,7 +15,8 @@ estrutura principal.
   - A tela acima permite a escolha de um template para a **Activity**:
     - **Activity** é a classe responsável por criar uma tela na aplicação Android;
     - A activity inicial de uma aplicação é comumente nomeada **MainActivity**;
-    - Toda activity tem seu conteúdo visual definido em arquivos XML, conhecidos como "Arquivos de layout";;
+    - Toda activity tem seu conteúdo visual definido em arquivos XML, conhecidos como "Arquivos de layout":
+      - Mais recentemente, o Jetpack Compose permite formas mais simples de criação de layouts;
   - Selecione a opção **Empty Activity** para um primeiro exemplo;
 
     ![Configurações do Projeto](res/images/aula_02/02_config_proj.png)
@@ -115,7 +116,7 @@ estrutura principal.
 - Por exemplo:
 
   - Na pasta `res/mipmap-mdpi`, existe um arquivo chamado `ic_launcher.webp`;
-  - É possível acessar esse arquivo pelo identificado `R.mipmap.ic_launcher` em qualquer código Kotlin da aplicação:
+  - É possível acessar esse arquivo pelo identificador `R.mipmap.ic_launcher` em qualquer código Kotlin da aplicação:
     - Nos arquivos xml, ao invés de utilizarmos a classe R, utilizamos o sinal `@` para referenciarmos algum recurso;
   - Vejamos mais uma vez um trecho do _AndroidManifest.xml_:
 
@@ -140,9 +141,9 @@ estrutura principal.
 
 | Recurso | ID da Classe R | Arquivo XML |
 | ------------- | -------------- | -------------- |
-| res/mipmap/ic launcher.png | IR.mipmap.ic_launcher | @mipmap/ic_launchertem1 |
+| res/mipmap/ic launcher.png | R.mipmap.ic_launcher | @mipmap/ic_launcher |
 |res/drawable/imagem.png | R.drawable.imagem | @drawable/imagem|
-|res/layout/activity_main.xml | R.layout.activity_main | @layout/activity main|
+|res/layout/activity_main.xml | R.layout.activity_main | @layout/activity_main|
 |res/menu/menu_main.xml | R.menu.menu main | @menu/menu_main|
 |res/values/strings.xml  `<string name="ola">` | R.string.ola | @string/ola|
 
@@ -203,10 +204,9 @@ fun GreetingPreview() {
 ```
 
 - Diferenças claras com relação ao Java:
-
   - Extensão do arquivo (.kt);
   - Sem `;` no final do comandos (é opcional);
-  - Operador de herança: `:`:
+  - Operador de herança `:`:
     - Classe `MainActivity` está herdando `ComponentActivity`;
   - Toda classe herda de `Any` e não de `Object`;
   - Ao sobreescrever um método, é necessário utilizar a palavra-chave `override`;
@@ -248,7 +248,7 @@ fun GreetingPreview() {
 
 - Os arquivos de layout são arquivos XML que definem a estrutura visual de uma ou mais activities;
 - Localizam-se na pasta `res/layout`;
-- Na MainActivity, utilizamos a classe `R` para referenciar um layout (`R.layout.activity_main`;
+- Na MainActivity, utilizamos a classe `R` para referenciar um layout (`R.layout.activity_main`);
 - Ao abrir o arquivo de layout correspondente, temos acesso ao editor de layouts:
 
   - Este pode ser utilizado com a interface gráfica (Design) ou de texto;
@@ -278,8 +278,7 @@ fun GreetingPreview() {
     </androidx.constraintlayout.widget.ConstraintLayout>
     ```
 
-  - Na próxima aula teremos mais detalhes de como os layouts funcionam;
-  - Entretanto, já é possível observar pelo arquivo acima que nosso layout é composto por:
+  - É possível observar pelo arquivo acima que nosso layout é composto por:
     - Um gerenciador de layout conhecido por `ConstraintLayout`;
     - Um `<TextView>` com conteúdo "Hello World!" e algumas indicações de posicionamento;
 
@@ -398,7 +397,7 @@ dependencies {
 ```
 
 - O Gradle funciona essencialmente a base de plugins;
-- Na 3 primeiras linhas do arquivo acima, são invocados 3 plugins do gradle: uma para desenvolvimento para android e dois referentes ao uso do kotlin;
+- Nas 3 primeiras linhas do arquivo acima, são invocados 3 plugins do gradle: uma para desenvolvimento para android e dois referentes ao uso do kotlin;
 - Esses plugins possuem as informações necessárias para que a compilação seja adequada às necessidades do projeto (Android + Kotlin);
 - No bloco `android` residem as configurações específicas para o plugin android;
 - Ao final do arquivo, o bloco `dependencies` define as dependências de bibliotecas externas ou módulos necessários pelo projeto:
@@ -546,11 +545,10 @@ Greeting(
     Log.d(tag, "mnc: $mnc")
     ```
 
-  - Para compilar o código sem erros, será necessário adicionar as dependências `android.util.Log` e `android.util.log` ao código:
+  - Para compilar o código sem erros, será necessário adicionar a dependência `android.util.Log` ao código:
 
     ```kotlin
     import android.util.Log
-    import android.os.Build
     ```
 
   - Se preferir, pressione o atalho **ALT+Enter** para que o Android Studio sugira a importação:
@@ -580,51 +578,6 @@ Greeting(
   - O arquivo `AndroidManifest.xml` indica qual _Activity_ é o _Entry Point_ da aplicação;
   - Essa _Activity_ determina o seu layout a partir da função `setContent`:
     - A diferença é que, ao invés de utilizar um arquivo XML de View, agora a função `setContent` recebe chamadas de funções _Composable_;
-
-> [!Note]
->
-> - Diferença entre componentes `Surface` e `Scaffold`:
->   - São estruturas fundamentais de layout. Algo como containers;
->   - Porém, `Scaffold` torna mais fácil o tratamento de área cobertas pelo Sistema Operacional (como barras de notificação, notch de câmera, botões de navegação, etc.);
->   - Isso é ainda mais importante após a decisão do Google de que as [aplicações devem usar `enableEdgeToEdge()`](https://developer.android.com/about/versions/15/behavior-changes-15#edge-to-edge).
->     - Isso significa que a aplicação é que deve tomar conta dessas áreas cobertas, ocupando a tela de "borda à borda";
->   - Com o `Surface` esse controle se torna bem mais complexo.
-
-```Kotlin
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BasicsCodelabTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BasicsCodelabTheme {
-        Greeting("Android")
-    }
-}
-```
-
 - Adicionar `Surface` em volta do `Text` e mudar a cor com `Surface(color = MaterialTheme.colorScheme.primary)`:
   - A cor do texto muda automaticamente pois o material Design tem definições padrão para cores.
 
@@ -673,6 +626,16 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
   - O que estiver dentro desse bloco será o conteúdo do botão.
   - Precisa adicionar o argumento `onClick = {}`;
 
+```kotlin
+          ElevatedButton(
+                onClick = {
+                    Log.d("DS151", "clique!")
+                }
+            ) {
+                Text("Clique")
+          }
+```
+
 ### Estado de componentes
 
 - Muito similar ao estado do React Native;
@@ -682,7 +645,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
   - Quando alteradas, o componente é redesenhado (a função é executada novamente): _Recomposition_
   - Componentes podem ser reexecutados em qualquer ordem e frequentemente;
 
-- Para que o Composable observer uma variável utilize `mutableStateOf`;
+- Para que o `Composable` observe uma variável utilize `mutableStateOf`;
   - Além disso, para que a variável não perca o seu valor entre execuções, adicione `remember`:
 
 ```Kotlin
@@ -694,7 +657,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 ```Kotlin
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-  var expanded: MutableState<Boolean> = remember { mutableStateOf(false) }
+  val expanded: MutableState<Boolean> = remember { mutableStateOf(false) }
   Surface( color = MaterialTheme.colorScheme.secondary, modifier = modifier.padding(4.dp) ) {
       Row(modifier = modifier.padding(24.dp)){
           Column(modifier = modifier.padding(4.dp).weight(0.8F)){
@@ -716,7 +679,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
       }
   }
 }
-
 ```
 
 ## Debug no Android Studio
@@ -732,7 +694,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 Os códigos utilizados nessa aula podem ser encontrados no seguinte repositório:
 
-<https://gitlab.com/ds151-alexkutzke/ds151-aula-02-codes>
+<https://github.com/tads-ufpr-alexkutzke/ds151-aula-02-codes>
 
 ## Referências
 
