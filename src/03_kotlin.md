@@ -612,48 +612,9 @@ println(usuario2) // Saída: Usuario(nome=Ana, idade=30)
 
 ---
 
-## Exercícios Práticos com Loops e Arrays
+## Exercícios Práticos para entregar
 
-A seguir, uma lista de exercícios progressivos envolvendo loops e arrays em Kotlin.
-
-### Exercício 1:
-Crie um programa que imprima os números de 1 a 10 usando um loop `for`.
-
-### Exercício 2:
-Crie um programa que imprima todos os números pares de 1 a 20 usando um loop `for`.
-
-
-### Exercício 3:
-Crie um programa que calcule a soma dos números de 1 a 100 usando um loop `while`.
-
-
-### Exercício 4:
-Dado um array de inteiros, encontre o maior número presente no array.
-
-
-### Exercício 5:
-Inverta os elementos de um array sem usar funções prontas.
-
-### Exercício 6:
-Crie um programa que conte quantas vezes uma string aparece em outra.
-
-### Exercício 7:
-Verifique se um array está ordenado de forma crescente. 
-Se não estiver, informe o usuário e ordene o array.
-
-### Exercício 8:
-Gere os 30 primeiros números da sequência de Fibonacci e armazene-os em uma lista.
-Imprima apenas os valores pares.
-
-### Exercício 9:
-Crie uma classe Livro com os atributos título, autor e ano. 
-Crie uma lista de livros. 
-Filtre e imprima apenas os livros publicados após o ano 2000.
-
-
-### Exercício 10:
-Implemente uma classe Biblioteca que gerencie uma coleção de livros. A classe deve ter métodos para adicionar livros, remover livros por título e listar todos os livros ordenados por ano de publicação.
-
+<https://gitlab.com/ds151-alexkutzke/ds151-kotlin-assignment>
 
 ## Referências
 
