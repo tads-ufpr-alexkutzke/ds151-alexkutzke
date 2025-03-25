@@ -1,11 +1,5 @@
 # Aula 03: Introdução ao Kotlin para Desenvolvimento Android
 
-## Objetivo
-
-Apresentar os principais conceitos da linguagem Kotlin com foco no desenvolvimento Android, incluindo exemplos práticos e exercícios para fixar o aprendizado.
-
----
-
 ## Introdução ao Kotlin
 
 Kotlin é uma linguagem moderna e concisa, totalmente interoperável com Java, e é a linguagem oficial para desenvolvimento Android.
@@ -55,7 +49,6 @@ O controle de fluxo em Kotlin é essencial para definir a lógica de execução 
 ### Estruturas Condicionais
 
 #### if / else
-O `if` é utilizado para verificar uma condição e executar blocos de código diferentes com base no resultado.
 
 ##### Sintaxe:
 ```kotlin
@@ -123,7 +116,6 @@ when {
 ### Estruturas de Repetição
 
 #### while
-O `while` executa um bloco de código enquanto a condição for verdadeira.
 
 ##### Sintaxe:
 ```kotlin
@@ -342,7 +334,7 @@ No exemplo acima, usamos `::soma` para referenciar diretamente a função `soma`
 
 ### Trailing Lambdas
 
-Quando a última (ou única) parâmetro de uma função é uma função lambda, podemos movê-la para fora dos parênteses, tornando o código mais legível. Esse recurso é chamado de *trailing lambda*.
+Quando o último (ou único) parâmetro de uma função é uma função lambda, podemos movê-la para fora dos parênteses, tornando o código mais legível. Esse recurso é chamado de *trailing lambda*.
 
 #### Exemplo sem trailing lambda:
 ```kotlin
@@ -642,22 +634,26 @@ Dado um array de inteiros, encontre o maior número presente no array.
 ### Exercício 5:
 Inverta os elementos de um array sem usar funções prontas.
 
-
 ### Exercício 6:
-Crie um programa que conte quantas vezes um número específico aparece em um array.
-
+Crie um programa que conte quantas vezes uma string aparece em outra.
 
 ### Exercício 7:
-Verifique se um array está ordenado de forma crescente.
+Verifique se um array está ordenado de forma crescente. 
+Se não estiver, informe o usuário e ordene o array.
 
 ### Exercício 8:
-Gere os 10 primeiros números da sequência de Fibonacci.
+Gere os 30 primeiros números da sequência de Fibonacci e armazene-os em uma lista.
+Imprima apenas os valores pares.
 
 ### Exercício 9:
-Crie um programa que remova todos os elementos duplicados de um array.
+Crie uma classe Livro com os atributos título, autor e ano. 
+Crie uma lista de livros. 
+Filtre e imprima apenas os livros publicados após o ano 2000.
+
 
 ### Exercício 10:
-Rotacione os elementos de um array para a direita em uma posição.
+Implemente uma classe Biblioteca que gerencie uma coleção de livros. A classe deve ter métodos para adicionar livros, remover livros por título e listar todos os livros ordenados por ano de publicação.
+
 
 ## Referências
 
