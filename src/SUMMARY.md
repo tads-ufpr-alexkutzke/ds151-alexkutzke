@@ -4,8 +4,8 @@
 - [Introdução ao Desenvolvimento Android](./01_intro.md)
 - [Android Studio e Estrutura de Projetos](./02_android_studio.md)
 - [Fundamentos de Kotlin para Android](./03_kotlin.md)
-<!--- [Introdução ao Jetpack Compose](./04_compose.md)
-- [Layouts e Componentes Básicos com Compose](./05_layouts.md)
+- [Introdução ao Jetpack Compose](./04_compose.md)
+<!--- [Layouts e Componentes Básicos com Compose](./05_layouts.md)
 - [Gerenciamento de Estado e Interatividade](./06_estados.md)
 - [Navegação entre Telas com Compose](./07_navegacao.md)
 - [Integração com APIs e Consumo de Dados](./08_apis.md)
@@ -16,3 +16,4 @@
 - [Desenvolvimento Orientado ao Projeto Final](./13_projeto.md)
 - [Dia de Prova – Criação de Aplicativo em Aula](./14_prova.md)
 - [Apresentação e Avaliação dos Projetos Finais](./15_apresentacoes.md)-->
+- [Status da Entrega de Exercícios 2025/1](./report_t_2025_1.md)
