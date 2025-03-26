@@ -7,9 +7,12 @@ Criação dos primeiros composables
 Atividade:
 Desenvolvimento de um “Hello World” utilizando Compose
 
-Acompanhar exemplo 
+## Tópicos
 
-https://developer.android.com/develop/ui/compose/tutorial
+1. Explicação sobre UI declarativa
+2. Acompanhar exemplo:
+  https://developer.android.com/develop/ui/compose/tutorial
+3. Propor prática (criar um layout simples e pedir para os alunos tentarem reproduzir)
 
 # Modelo Mental do Jetpack Compose
 
@@ -1023,3 +1026,314 @@ Adding user interaction on a composable
 Animating messages while expanding them
 If you want to dig deeper on some of these steps, explore the resources below.
 
+
+# Tópicos para Aula sobre Jetpack Compose
+
+## Introdução ao Jetpack Compose
+- Toolkit moderno para criar interfaces nativas do Android.
+- Simplifica e acelera o desenvolvimento de UI com menos código.
+- Usa APIs intuitivas em Kotlin.
+
+## Conceitos Básicos de Compose
+
+1. **Funções Componíveis (Composable Functions)**
+   - Defina a UI do app programaticamente.
+   - Use a anotação `@Composable` para funções componíveis.
+   - Exemplo: Adicionar um elemento de texto com a função `Text`.
+
+   ```kotlin
+   import android.os.Bundle
+   import androidx.activity.ComponentActivity
+   import androidx.activity.compose.setContent
+   import androidx.compose.material3.Text
+
+   class MainActivity : ComponentActivity() {
+       override fun onCreate(savedInstanceState: Bundle?) {
+           super.onCreate(savedInstanceState)
+           setContent {
+               Text(\"Hello world!\")
+           }
+       }
+   }
+   ```
+
+2. **Visualização de Funções Componíveis**
+   - Utilizar a anotação `@Preview` para visualizar funções no Android Studio.
+   - Criação de uma função de pré-visualização para ver a composição sem parâmetros.
+
+   ```kotlin
+   import androidx.compose.runtime.Composable
+   import androidx.compose.ui.tooling.preview.Preview
+
+   @Composable
+   fun MessageCard(name: String) {
+       Text(text = \"Hello $name!\")
+   }
+
+   @Preview
+   @Composable
+   fun PreviewMessageCard() {
+       MessageCard(\"Android\")
+   }
+   ```
+
+## Desenvolvimento de Layouts
+1. **Hierarquia de Elementos de UI**
+   - Construir hierarquias de UI com funções componíveis.
+   - Exemplo: Usar `Column` para dispor elementos verticalmente.
+
+   ```kotlin
+   import androidx.compose.foundation.layout.Column
+
+   @Composable
+   fun MessageCard(msg: Message) {
+       Column {
+           Text(text = msg.author)
+           Text(text = msg.body)
+       }
+   }
+   ```
+
+2. **Adicionar Elementos de Texto e Imagem**
+   - Exemplo de código para adicionar múltiplos textos e imagens.
+   - Uso de `Row` e `Image` para estruturar elementos.
+
+   ```kotlin
+   import androidx.compose.foundation.Image
+   import androidx.compose.foundation.layout.Row
+   import androidx.compose.ui.res.painterResource
+
+   @Composable
+   fun MessageCard(msg: Message) {
+       Row {
+           Image(
+               painter = painterResource(R.drawable.profile_picture),
+               contentDescription = \"Contact profile picture\",
+           )
+           Column {
+               Text(text = msg.author)
+               Text(text = msg.body)
+           }
+       }
+   }
+   ```
+
+3. **Configuração do Layout**
+   - Uso de modificadores para alterar tamanho, layout e aparência.
+   - Exemplo de código com modificadores como `padding`, `size` e `clip`.
+
+   ```kotlin
+   import androidx.compose.foundation.border
+   import androidx.compose.foundation.layout.Spacer
+   import androidx.compose.foundation.layout.height
+   import androidx.compose.foundation.layout.padding
+   import androidx.compose.foundation.layout.size
+   import androidx.compose.foundation.layout.width
+   import androidx.compose.foundation.shape.CircleShape
+   import androidx.compose.ui.Modifier
+   import androidx.compose.ui.draw.clip
+   import androidx.compose.ui.unit.dp
+
+   @Composable
+   fun MessageCard(msg: Message) {
+       Row(modifier = Modifier.padding(all = 8.dp)) {
+           Image(
+               painter = painterResource(R.drawable.profile_picture),
+               contentDescription = \"Contact profile picture\",
+               modifier = Modifier
+                   .size(40.dp)
+                   .clip(CircleShape)
+           )
+           Spacer(modifier = Modifier.width(8.dp))
+           Column {
+               Text(text = msg.author)
+               Spacer(modifier = Modifier.height(4.dp))
+               Text(text = msg.body)
+           }
+       }
+   }
+   ```
+
+## Design com Material Design
+
+1. **Uso do Design Material**
+   - Implementação de Material Design 3.
+   - Uso de `Surface` e tema `ComposeTutorialTheme` para consistência de estilo.
+
+   ```kotlin
+   class MainActivity : ComponentActivity() {
+       override fun onCreate(savedInstanceState: Bundle?) {
+           super.onCreate(savedInstanceState)
+           setContent {
+               ComposeTutorialTheme {
+                   Surface(modifier = Modifier.fillMaxSize()) {
+                       MessageCard(Message(\"Android\", \"Jetpack Compose\"))
+                   }
+               }
+           }
+       }
+   }
+
+   @Preview
+   @Composable
+   fun PreviewMessageCard() {
+       ComposeTutorialTheme {
+           Surface {
+               MessageCard(
+                   msg = Message(\"Lexi\", \"Take a look at Jetpack Compose, it's great!\")
+               )
+           }
+       }
+   }
+   ```
+
+2. **Aplicando Estilos com `MaterialTheme`**
+   - Cores: Uso de `MaterialTheme.colorScheme`.
+   - Tipografia: Uso de `MaterialTheme.typography`.
+   - Formas: Ajustes de bordas e elevação de elementos.
+
+   ```kotlin
+   import androidx.compose.foundation.border
+   import androidx.compose.material3.MaterialTheme
+
+   @Composable
+   fun MessageCard(msg: Message) {
+       Row(modifier = Modifier.padding(all = 8.dp)) {
+           Image(
+               painter = painterResource(R.drawable.profile_picture),
+               contentDescription = null,
+               modifier = Modifier
+                   .size(40.dp)
+                   .clip(CircleShape)
+                   .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+           )
+
+           Spacer(modifier = Modifier.width(8.dp))
+
+           Column {
+               Text(
+                   text = msg.author,
+                   color = MaterialTheme.colorScheme.secondary,
+                   style = MaterialTheme.typography.titleSmall
+               )
+
+               Spacer(modifier = Modifier.height(4.dp))
+               Text(
+                   text = msg.body,
+                   style = MaterialTheme.typography.bodyMedium
+               )
+           }
+       }
+   }
+   ```
+
+## Trabalhando com Temas
+
+1. **Habilitação do Tema Escuro**
+   - Suporte nativo a tema escuro com adaptação de cores automáticas.
+   - Uso de múltiplas anotações de pré-visualização para ver temas claro e escuro.
+
+   ```kotlin
+   import android.content.res.Configuration
+
+   @Preview(name = \"Light Mode\")
+   @Preview(
+       uiMode = Configuration.UI_MODE_NIGHT_YES,
+       showBackground = true,
+       name = \"Dark Mode\"
+   )
+   @Composable
+   fun PreviewMessageCard() {
+       ComposeTutorialTheme {
+           Surface {
+               MessageCard(
+                   msg = Message(\"Lexi\", \"Hey, take a look at Jetpack Compose, it's great!\")
+               )
+           }
+       }
+   }
+   ```
+
+## Listas e Animações
+
+1. **Criação de Listas de Mensagens**
+   - Uso de `LazyColumn` e `LazyRow` para eficiência.
+   - Exemplo de código para criar uma função `Conversation` exibindo múltiplas mensagens.
+
+   ```kotlin
+   import androidx.compose.foundation.lazy.LazyColumn
+   import androidx.compose.foundation.lazy.items
+
+   @Composable
+   fun Conversation(messages: List<Message>) {
+       LazyColumn {
+           items(messages) { message ->
+               MessageCard(message)
+           }
+       }
+   }
+
+   @Preview
+   @Composable
+   fun PreviewConversation() {
+       ComposeTutorialTheme {
+           Conversation(SampleData.conversationSample)
+       }
+   }
+   ```
+
+2. **Animação de Mensagens**
+   - Uso de funções `remember` e `mutableStateOf` para gerenciar estado local.
+   - Exemplo de código para animar cor e tamanho de mensagens ao expandir.
+
+   ```kotlin
+   import androidx.compose.foundation.clickable
+   import androidx.compose.runtime.getValue
+   import androidx.compose.runtime.mutableStateOf
+   import androidx.compose.runtime.remember
+   import androidx.compose.runtime.setValue
+   import androidx.compose.animation.animateColorAsState
+   import androidx.compose.animation.animateContentSize
+
+   @Composable
+   fun MessageCard(msg: Message) {
+       Row(modifier = Modifier.padding(all = 8.dp)) {
+           Image(
+               painter = painterResource(R.drawable.profile_picture),
+               contentDescription = null,
+               modifier = Modifier
+                   .size(40.dp)
+                   .clip(CircleShape)
+                   .border(1.5.dp, MaterialTheme.colorScheme.secondary, CircleShape)
+           )
+           Spacer(modifier = Modifier.width(8.dp))
+
+           var isExpanded by remember { mutableStateOf(false) }
+           val surfaceColor by animateColorAsState(
+               if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+           )
+
+           Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
+               Text(
+                   text = msg.author,
+                   color = MaterialTheme.colorScheme.secondary,
+                   style = MaterialTheme.typography.titleSmall
+               )
+
+               Spacer(modifier = Modifier.height(4.dp))
+
+               Surface(
+                   shape = MaterialTheme.shapes.medium,
+                   shadowElevation = 1.dp,
+                   color = surfaceColor,
+                   modifier = Modifier.animateContentSize().padding(1.dp)
+               ) {
+                   Text(
+                       text = msg.body,
+                       modifier = Modifier.padding(all = 4.dp),
+                       maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                       style = MaterialTheme.typography.bodyMedium
+                   )
+               }
+           }
+       }
