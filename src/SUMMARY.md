@@ -16,3 +16,4 @@
 - [Desenvolvimento Orientado ao Projeto Final](./13_projeto.md)
 - [Dia de Prova – Criação de Aplicativo em Aula](./14_prova.md)
 - [Apresentação e Avaliação dos Projetos Finais](./15_apresentacoes.md)-->
+- [Status entrega dos exercícios](./report_t_2025_1.md)
