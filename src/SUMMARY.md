@@ -4,7 +4,7 @@
 - [Introdução ao Desenvolvimento Android](./01_intro.md)
 - [Android Studio e Estrutura de Projetos](./02_android_studio.md)
 - [Fundamentos de Kotlin para Android](./03_kotlin.md)
-<!--- [Introdução ao Jetpack Compose](./04_compose.md)-->
+- [Introdução ao Jetpack Compose](./04_compose.md)
 <!--- [Layouts e Componentes Básicos com Compose](./05_layouts.md)
 - [Gerenciamento de Estado e Interatividade](./06_estados.md)
 - [Navegação entre Telas com Compose](./07_navegacao.md)
