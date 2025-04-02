@@ -748,6 +748,16 @@ Resumo e tradução do [tutorial da documentação oficial](https://developer.an
 
 Altere o código do repositório da aula de modo que o componente `SimpleScreen` fique com a seguinte aparência:
 
+Para esse exercício, os seguintes recursos do Jetpack Compose podem ser interessantes:
+
+```kotlin
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
+```
+
 ![Tela com texto centralizado](./res/images/aula_04/exercicio_compose_alinhamento.png)
 
 #### Exercício 2: Criar um Perfil de Usuário
