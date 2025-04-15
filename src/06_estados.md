@@ -1,30 +1,8 @@
-# 06_estados.md
-
-Conteúdo:
-Conceitos de estado e recomposição
-Uso de remember, mutableStateOf e state hoisting
-Tratamento de eventos de clique e interações
-Atividade:
-Implementação de um contador interativo
+# 06 - Gerenciamento de Estado e ViewModels
 
 ## Código exemplo: Jogo da Velha
 
 <https://github.com/tads-ufpr-alexkutzke/ds151-example-tictactoe>
-
-
-- Problema com LazyColumn e estados:
-  - Se elemento sai da tela, ele perde o estado:
-  - Solução simples: `rememberSaveable`
-
-- `MutableList`s observáveis:
-  - Utilizar `MutableStateListOf` ou `toMutableStateList()`
-
-- Problemas com o `rememberSaveable`:
-  - If you try to use `rememberSaveable()` to store the list in `WellnessScreen`, you'll get a runtime exception:
-
-  - This error tells you that you need to provide a [custom saver](https://developer.android.com/jetpack/compose/state#restore-ui-state). However, you shouldn't be using `rememberSaveable` to store large amounts of data or complex data structures that require lengthy serialization or deserialization.
-
-  - Similar rules apply when working with Activity's [`onSaveInstanceState`](https://developer.android.com/reference/android/app/Activity#onSaveInstanceState\(android.os.Bundle\)); you can find more information in the [Save UI states documentation](https://developer.android.com/topic/libraries/architecture/saving-states#onsaveinstancestate). If you want to do this, you need an alternative storing mechanism. You can learn more about different [options for preserving UI state](https://developer.android.com/topic/libraries/architecture/saving-states#options) in the documentation.
 
 ## Desenvolvimento da aplicação MyTasks
 
@@ -55,7 +33,8 @@ O componente `TaskItem` exibe uma lista de tarefas, ou seja, uma lista de `TaskI
 
 Pontos importantes:
   - Parâmetro `key`: para que a `LazyColumn` mantenha um controle mais preciso de quais elementos foram atualizados, é importante informar uma forma de identificar cada elemento unicamente:
-    - Aqui usamos um `id` criado de forma randômica para cada `Task`: `val id: UUID = UUID.randomUUID()`
+    - Aqui usamos um `id` criado de forma randômica para cada `Task`: `val id: UUID = UUID.randomUUID()`;
+  - Também foi projetada para ser `stateless`;
 
 #### Commit: **TaskList** - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-06-mytasks/commit/1b615fd406870b04e65bcaa05bf0fec817425ea3'>Diffs 1b615fd4</a>
 
@@ -68,39 +47,66 @@ Pontos importantes:
 
 ---
 
+### 3. Criação dos componentes principal - MyTasks 
+
+O componente `MyTasks` é responsável por abrigar outros dois componentes:
+  - `NewTaskControl`: caixa de texto e botão para a criação de uma nova tarefa;
+  - `TaskList`: lista de tarefas;
+
 #### Commit: **NewTaskControl and MyTasks** - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-06-mytasks/commit/a39ac3052175e11c5a84bc03c89f80fe02551df7'>Diffs a39ac305</a>
-
-
-
-
 
 <details>
 <summary><code>MyTasks.kt</code></summary>
+<br>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2Fa39ac3052175e11c5a84bc03c89f80fe02551df7%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FMyTasks.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
+
+##### Componente NewTaskControl
+
+O componente `NewTaskControl` faz uso de um `TextField`, mais precisamente, de um `OutlinedTextField`.
+
+Campos de texto precisam de, pelo menos, dois parâmetros:
+  - `value`: texto atual apresentado na caixa de texto;
+  - `onValueChange`: evento de alteração do texto. É um callback com um argumento, o novo valor do texto;
+
 <details>
 <summary><code>NewTaskControl.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2Fa39ac3052175e11c5a84bc03c89f80fe02551df7%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FNewTaskControl.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+<br>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2Fa39ac3052175e11c5a84bc03c89f80fe02551df7%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FNewTaskControl.kt%23L19-51&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
 
 ---
 
+### 4. Inclusão dos primeiros estados
+
+Nesse commit o componente `MyTasks` recebe dois estados novos:
+
+```kotlin
+var newTaskText by remember { mutableStateOf("") }
+var tasks = remember { mutableStateListOf<Task>() }
+```
+
+`newTaskText` é o texto armazenado no `TextField`.
+
+`tasks` é a lista de tarefas atual.
+
 #### Commit: **First states** - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-06-mytasks/commit/bb906d1cb3a5c3641d11b3fb3a7d701cd4a7c257'>Diffs bb906d1c</a>
 
-
-
-
-
-<details>
-<summary><code>MainActivity.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2Fbb906d1cb3a5c3641d11b3fb3a7d701cd4a7c257%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2FMainActivity.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
-
-</details>
-<details>
 <summary><code>MyTasks.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2Fbb906d1cb3a5c3641d11b3fb3a7d701cd4a7c257%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FMyTasks.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+<br>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2Fbb906d1cb3a5c3641d11b3fb3a7d701cd4a7c257%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FMyTasks.kt%23L13-35&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+
+Pontos importantes:
+
+- Problema com o `LazyColumn` e estados:
+  - Se elemento sai da tela, ele perde o estado:
+  - Solução simples: utilizar `rememberSaveable` ao invés de `remember`:
+    - `rememberSaveable` consegue sobreviver a pequenas alterações na tela, mas não pode armazenar dados complexos como listas;
+
+- `MutableList`s observáveis:
+  - Utilizar `MutableStateListOf` ou `toMutableStateList()`
 
 </details>
 <details>
@@ -111,59 +117,53 @@ Pontos importantes:
 
 ---
 
+### 5. Implementação completa de estados
+
+Para adicionar todo o funcionamento da tela, tornamos o valor `checked` observável na classe `Task`.
+
+Assim, o componente `TaskList` consegue recompor sempre que uma tarefa tem seu estado de `checked` alterado.
+
+Pontos importantes:
+  - Como os eventos `onCheckedChange` e `onRemoveClick` são implementados.
+
 #### Commit: **Events and states working** - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-06-mytasks/commit/07479b859a9aacfa231ecb1b0255798b2759c951'>Diffs 07479b85</a>
-
-
-
-
 
 <details>
 <summary><code>MyTasks.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2F07479b859a9aacfa231ecb1b0255798b2759c951%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FMyTasks.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+<br>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2F07479b859a9aacfa231ecb1b0255798b2759c951%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FMyTasks.kt%23L13-37&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
-<details>
-<summary><code>TaskItem.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2F07479b859a9aacfa231ecb1b0255798b2759c951%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FTaskItem.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
-</details>
 <details>
+<br>
 <summary><code>TaskList.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2F07479b859a9aacfa231ecb1b0255798b2759c951%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FTaskList.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2F07479b859a9aacfa231ecb1b0255798b2759c951%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FTaskList.kt%23L13-56&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
 
 ---
+
+### 5. Implementação completa de estados
+
+Apenas ordena as tarefas para apresentar as não realizas antes.
 
 #### Commit: **Sort tasks** - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-06-mytasks/commit/26f4dc530a8f60ebcf543eae044bf41c9091327d'>Diffs 26f4dc53</a>
 
-
-
-
-
 <details>
 <summary><code>MyTasks.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2F26f4dc530a8f60ebcf543eae044bf41c9091327d%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FMyTasks.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+<br>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:100px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2F26f4dc530a8f60ebcf543eae044bf41c9091327d%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmytasks%2Fui%2Fmytasks%2FMyTasks.kt%23L24-24&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
+<br>
+
+> [!IMPORTANT]
+> Na forma como está, qualquer alteração na tela, como rotacionar o celular, faz toda a lista de tarefas ser perdida.
 
 ---
 
-**Readme** - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-06-mytasks/commit/ce6303dab475642fae177d2bbf679cecae374f21'>Diffs ce6303da</a>
-
-
-
-
-
-<details>
-<summary><code>README.md</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-06-mytasks%2Fblob%2Fce6303dab475642fae177d2bbf679cecae374f21%2FREADME.md&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
-
-</details>
-
----
-
-### Utilizando `ViewModel` para armazenar estados
+### 6. Utilizando `ViewModel` para armazenar estados
 
 #### Commit: **Implements MyTasksViewModel** - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-06-mytasks/commit/c3d0f24b1a9395952265d218b6461e1a65aed8dc'>Diffs c3d0f24b</a>
 
