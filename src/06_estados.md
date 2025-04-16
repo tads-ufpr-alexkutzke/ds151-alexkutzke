@@ -180,6 +180,13 @@ A Lógica de Domínio é, geralmente, armazenada em outras camadas da aplicaçã
 
 É uma boa prática manter as Lógicas de UI e de Domínio separadas: mover para uma `ViewModel`;
 
+![UI = UI Elements + UI State](https://developer.android.com/static/codelabs/basic-android-kotlin-compose-viewmodel-and-state/img/9cfedef1750ddd2c.png)
+
+**Unidirectional data flow**
+
+![The UI update loop on unidirectional data flow](https://developer.android.com/static/codelabs/basic-android-kotlin-compose-viewmodel-and-state/img/61eb7bcdcff42227.png)
+
+
 Nesse commit, criamos uma nova `ViewModel`, chamada `MyTasksViewModel`:
 
 <details>
