@@ -92,7 +92,6 @@ Por fim, define-se um `object` que será utilizado pelo resto do App para acessa
 
 Aqui, o uso de `object` e `lazy` tem uma razão de desempenho. Object irá garantir que apenas um objeto da classe `MoviesApi` será criado em toda aplicação. e o `lazy` determina que `retrofitService` só será inicializado quando for requisitado pela primeira vez. A inicialização do retrofit é uma operação cara, por isso deve ser feita apenas uma vez. 
 
- 
 ```kotlin
 object MoviesApi {
     val retrofitService: MoviesApiService by lazy {
@@ -101,21 +100,55 @@ object MoviesApi {
 }
 ```
 
+
+### Utilizando MoviesApi no ViewModel
+
+Embora `MoviesApi` estará disponível em qualquer lugar da aplicação, geralmente reservamos seu uso para dentro de um `ViewModel`. Desse modo, para outros componentes da aplicação, o acesso aos dados fica transparente.
+
 <details>
 <summary><code>MoviesAppViewModel.kt</code></summary>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F1f445d0395cc4d2260a180dbceb4ce0a792f71e2%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMoviesAppViewModel.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
 
+O código acima tem alguns pontos interessantes.
+
+Primeiro, a definição do estado, que nesse caso, será uma lista de filmes:
+
+```kotlin
+    private var _movies = mutableStateListOf<Movie>()
+    val movies: List<Movie>
+        get() = _movies
+```
+
+Na sequência, o construtor do `ViewModel` faz uso de um `viewModelScope` para realizar as chamadas assíncronas à API:
+ 
+```kotlin
+    init {
+        if(fake) _movies.addAll(fourMovies)
+        else{
+            viewModelScope.launch {
+                val movies = MoviesApi.retrofitService.getMovies()
+                _movies.addAll(movies)
+            }
+        }
+    }
+```
+
+É importante salientar que, no exemplo acima, não fazemos nenhum tratamento de erro.
+
+O `viewModelScope.launch` utilizado no construtor é algo novo. Ele determina o início de uma nova *Coroutine*, permitindo a realização de operações assíncronas e paralelas forma simples e segura (do ponto de vista de programação).
+
+
 ### Sobre Coroutines
 
-Coroutines (ou corrotinas) em Kotlin são uma utilizados para a programação de código assíncrono e concorrente de forma mais simples e eficiente. Elas permitem que realizar operações potencialmente demoradas — como acessar a internet ou ler arquivos — sem bloquear a thread principal (geralmente a de interface do usuário), tornando aplicativos mais responsivos. 
+**Coroutines (ou corrotinas) em Kotlin são uma utilizados para a programação de código assíncrono e concorrente de forma mais simples e eficiente.** Elas permitem que realizar operações potencialmente demoradas — como acessar a internet ou ler arquivos — sem bloquear a thread principal (geralmente a de interface do usuário), tornando aplicativos mais responsivos. 
 
-Uma coroutine é, basicamente, uma sequência de instruções que pode ser suspensa e retomada posteriormente, permitindo que outras tarefas sejam executadas enquanto ela aguarda alguma operação, como uma resposta de rede ou leitura de dados. Isso é feito de simples e estruturada, sem a complexidade tradicional de manipular múltiplas threads diretamente.
+Uma coroutine é, basicamente, **uma sequência de instruções que pode ser suspensa e retomada posteriormente**, permitindo que outras tarefas sejam executadas enquanto ela aguarda alguma operação, como uma resposta de rede ou leitura de dados. Isso é feito de simples e estruturada, sem a complexidade tradicional de manipular múltiplas threads diretamente.
 
-Kotlin oferece bibliotecas robustas para o uso de coroutines, com funções especiais como `suspend`, `launch`, `async` e `delay` que tornam o gerenciamento de tarefas assíncronas muito mais legível. Ao invés de callbacks encadeados ou código difícil de manter, o uso de coroutines proporciona uma sintaxe sequencial que é mais fácil de entender e depurar. Além disso, as coroutines incorporam o conceito de **concorrência estruturada**, promovendo o controle do ciclo de vida das tarefas assíncronas para evitar vazamentos de memória e garantir que todas as operações iniciadas sejam corretamente finalizadas ou canceladas quando necessário.
+Kotlin oferece bibliotecas robustas para o uso de coroutines, com **funções especiais como `suspend`, `launch`, `async` e `delay`** que tornam o gerenciamento de tarefas assíncronas muito mais legível. Ao invés de callbacks encadeados ou código difícil de manter, o uso de coroutines proporciona uma sintaxe sequencial que é mais fácil de entender e depurar. Além disso, as coroutines incorporam o conceito de **concorrência estruturada**, promovendo o controle do ciclo de vida das tarefas assíncronas para evitar vazamentos de memória e garantir que todas as operações iniciadas sejam corretamente finalizadas ou canceladas quando necessário.
 
-Considere o código a seguir:
+Considere o código a seguir (exemplos retirados de <https://developer.android.com/codelabs/basic-android-kotlin-compose-coroutines-kotlin-playground>):
 
 ```kotlin
 import kotlinx.coroutines.*
@@ -235,30 +268,109 @@ suspend fun getWeatherReport() = coroutineScope {
 - O Android fornece suporte a escopo de corrotines em entidades que têm um ciclo de vida bem definido, como `Activity` (`lifecycleScope`) e `ViewModel` (`viewModelScope`).
 - Coroutines iniciadas dentro desses escopos obedecerão ao ciclo de vida da entidade correspondente, como `Activity` ou `ViewModel`.
 
-
 ---
 
 ## 3. Commit: *MovieDetails with api request* - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-08-movies-api-app/commit/a08300309e6d51dfabcb3a21f9d4904bb4104066'>Diffs a0830030</a>
 
+Nesse commit, atualizamos a tela `MovieDetailsScreen` para acessar os dados de um filme por meio de um novo endpoint: `/movies/{movieId}`.
 
-<details>
-<summary><code>gradle.xml</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2Fa08300309e6d51dfabcb3a21f9d4904bb4104066%2F.idea%2Fgradle.xml&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
-</details>
+### Novo endpoint com parâmetro
+
+Adicionamos as informações para o novo endpoint, com o detalhe de que ele espera um `movieId` como parâmetro:
+
+```kotlin
+    @GET("/movies/{id}")
+    suspend fun getMovie(@Path("id") id:Int): Movie
+ ``` 
+
 <details>
 <summary><code>MoviesApiService.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2Fa08300309e6d51dfabcb3a21f9d4904bb4104066%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fnetwork%2FMoviesApiService.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
-
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2Fa08300309e6d51dfabcb3a21f9d4904bb4104066%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fnetwork%2FMoviesApiService.kt%23L17-L23&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 </details>
-<details>
-<summary><code>MoviesApp.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2Fa08300309e6d51dfabcb3a21f9d4904bb4104066%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
-</details>
+### Atualização do MoviesAppViewModel
+
+Devemos, também, atualizar o `MoviesAppViewModel` para que ele acesse esse novo endpoint.
+
+Dois detalhes importantes estão nessa atualização.
+
+Em primeiro lugar, definimos um novo estado `movieDetails`, do tipo `StateFlow<Movie?>`. `StateFlow` são uma forma comum de armazenar estados mais complexos como classes. `Flow` é um conceito do kotlin e tem relação com o paradigma *Produtor-Coletor*. Mas, para nós, no momento, será apenas uma forma conveniente de armazenar estados.
+
+```kotlin
+private var _movieDetails = MutableStateFlow<Movie?>(null)
+val movieDetails: StateFlow<Movie?> = _movieDetails
+```
+
+
+Em segundo lugar, alteramos a função `getMovie`, para que ela utilize o novo endpoint. Aqui adicionamos uma chamada para `delay` apenas para que fique claro que um processamento assíncrono está ocorrendo.
+
+Vale notar a necessidade de utilizar `.value` para acessar o valor do estado quando trabalhamos com `StateFlow`.
+
+```kotlin
+fun getMovie(movieId:Int) {
+    viewModelScope.launch {
+        delay(2000)
+        val movie = MoviesApi.retrofitService.getMovie(movieId)
+        _movieDetails.value = movie
+    }
+}
+```
+
+Uma pequena alteração foi feita para permitir o uso de Previews, uma vez que o acesso a API só ocorre na execução pelo emulador e dispositivo físico:
+
+```kotlin
+init {
+    if(fake) _movies.addAll(fourMovies)
+    else{
+```
+
+
 <details>
 <summary><code>MoviesAppViewModel.kt</code></summary>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2Fa08300309e6d51dfabcb3a21f9d4904bb4104066%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMoviesAppViewModel.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+
+</details>
+
+### Uso do novo endpoint
+
+Para recuperar o estado do `moviesAppViewModel`, utilizamos o método `collectAsState`, uma vez que estamos utilizando um `StateFlow`.
+
+```kotlin
+val movie = moviesAppViewModel.movieDetails.collectAsState()
+```
+
+Agora, utilizamos um `LaunchedEffect` para invocar a função `getMovie` do `moviesAppViewModel`.
+
+Um `LaunchedEffect` é um recurso utilizado em Composables para lidar com efeitos colaterais. Se for necessário executar algum código que não segue a mesma linha de execução do composable, devemos separá-lo. Por exemplo, um código assíncrono ou que leva muito tempo, são efeitos colaterais.
+
+Nesse caso, o bloco `LaunchedEffect` será executado de forma segura nos momentos necessários. Esse bloco será reexecutado sempre que um dos seus parâmetros tiver seu valor alterado (no caso, `movieId`). Ou seja, ele não é executado sempre que uma recomposição ocorre.
+
+```kotlin
+LaunchedEffect(movieId) {
+    moviesAppViewModel.getMovie(movieId)
+}
+```
+
+Basta, agora, renderizar o composable `MovieDetailsScreen` quando o estado `movie` não for nulo:
+
+```kotlin
+if(movie.value == null) Text("Carregando ...")
+else{
+    movie.value?.let {
+        MovieDetailsScreen(
+            movie = it,
+            onGoBackClick = {
+                navController.navigate("movies")
+            }
+        )
+    }
+}
+```
+
+<details>
+<summary><code>MoviesApp.kt</code></summary>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2Fa08300309e6d51dfabcb3a21f9d4904bb4104066%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt%23L48-L75&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
 
