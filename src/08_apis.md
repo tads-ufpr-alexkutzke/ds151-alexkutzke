@@ -692,3 +692,11 @@ composable(
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
+
+## Atividade prática
+
+Altere a tela `MovieDetailsScreen` para que ela carregue e apresente reviews do filme escolhido.
+
+A api possui um endpoint com reviews dos filmes <http://moviesapi.kutzke.com.br/reviews>.
+
+O servidor da API utiliza [Json-server](https://github.com/typicode/json-server). Consulte a documentação oficial para saber quais opções estão disponível (filtragem, paginação, etc).  
