@@ -265,8 +265,11 @@ suspend fun getWeatherReport() = coroutineScope {
 
 - Um `CoroutineScope` está atrelado a um ciclo de vida, que define quanto tempo as coroutines dentro desse escopo viverão. Se um escopo for cancelado, seu job também é cancelado, propagando o cancelamento para seus filhos. Se um job filho falha com exceção, os outros jobs filhos são cancelados, o job pai é cancelado e a exceção é relançada para o chamador.
 
-- O Android fornece suporte a escopo de corrotines em entidades que têm um ciclo de vida bem definido, como `Activity` (`lifecycleScope`) e `ViewModel` (`viewModelScope`).
+- O Android fornece suporte a escopo de coroutines em entidades que têm um ciclo de vida bem definido, como `Activity` (`lifecycleScope`) e `ViewModel` (`viewModelScope`).
 - Coroutines iniciadas dentro desses escopos obedecerão ao ciclo de vida da entidade correspondente, como `Activity` ou `ViewModel`.
+
+> [!IMPORTANT]
+> Aplicações Android geralmente possuem uma "Main thread" que é responsável pela atualização e renderização da tela. Sem o uso de coroutines, como `viewModelScope`, a tela ficaria "travada" até que processamentos assíncronos ou mais longos terminassem.
 
 ---
 
@@ -414,7 +417,67 @@ else{
 
 ### Acessando API no componente `MovieDetailsScreen`
 
-...
+Algumas alterações são necessárias para que a tela `MovieDetailsScreen` possa lidar com requisições de API.
+
+Inicialmente, ela precisa ter acesso ao viewModel, uma vez que todas as chamadas para API são controladas por `moviesAppViewModel`. Portanto, adicionamos um parâmetro para a tela que recebe, por padrão o valor de `viewModel()`.
+
+```kotlin
+@Composable
+fun MovieDetailsScreen(
+    movieId: Int,
+    moviesAppViewModel: MoviesAppViewModel = viewModel(),
+    onGoBackClick: () -> Unit = {},
+){
+```
+
+O restante do composable é, basicamente, o que estava em `MoviesApp` anteriormente:
+
+```kotlin
+@Composable
+fun MovieDetailsScreen(
+
+    // ...
+    val movie = moviesAppViewModel.movieDetails.collectAsState()
+
+    LaunchedEffect(movieId) {
+        moviesAppViewModel.getMovie(movieId)
+    }
+
+    if(movie.value == null) Text("Carregando ...")
+    movie.value?.let{ movie ->
+        MovieDetailsScreen(movie = movie)
+    }
+}
+```
+
+Um outro detalhe interessante é a criação de um outro componente com o mesmo nome, mas com uma assinatura de parâmetros diferente:
+
+```kotlin
+@Composable
+fun MovieDetailsScreen(
+    movie: Movie = fourMovies[0],
+    onGoBackClick: () -> Unit = {},
+){
+    MovieItem(movie = movie)
+}
+```
+
+Isso permite a criação mais simples de um Preview, uma vez que, como sabemos, não podem realizar requisições HTTP ou operações assíncronas.
+
+```kotlin
+@Preview
+@Composable
+fun MovieDetailsScreenPreview(){
+    MoviesAppTheme {
+       MovieDetailsScreen(
+           movie = fourMovies[0]
+       )
+    }
+}
+```
+
+Assim, criamos um preview para a instância de `MovieDetailsScreen` que não necessita da lógica de API.
+
 
 <details>
 <summary><code>MovieDetailsScreen.kt</code></summary>
@@ -426,39 +489,206 @@ else{
 
 ## 5. Commit: *Exception handling and UiState* - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-08-movies-api-app/commit/68567bdd7e9e01b2e90816dc95f58d1e1a4f7273'>Diffs 68567bdd</a>
 
-<details>
-<summary><code>MoviesApp.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+Para finalizar o desenvolvimento dessa aplicação inicial, vamos adicionar tratamento de exceções para que problemas de acesso à API não causem respostas inesperadas ao usuário.
 
-</details>
-<details>
-<summary><code>ApiComposables.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FApiComposables.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+### Adicionando mais estados para tratamento de exceções
 
-</details>
-<details>
-<summary><code>MovieDetailsScreen.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMovieDetailsScreen.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+Quando realizamos requisições a uma API, podemos interpretar que a interface pode ter três estados principais (cada um com seus dados específicos): sucesso, erro e carregando.
 
-</details>
+Portanto, podemos alterar os estados armazenados em `MoviesAppViewModel` para que atendam essa nova organização.
+
+Existem muitas formas de fazer isso. Uma delas é definindo uma `sealed interface`:
+
+```kotlin
+sealed interface MoviesScreenUiState {
+    class Success(val movies: List<Movie>): MoviesScreenUiState
+    object Error: MoviesScreenUiState
+    object Loading: MoviesScreenUiState
+}
+
+sealed interface MovieDetailsScreenUiState {
+    class Success(val movie: Movie ) : MovieDetailsScreenUiState
+    object Error : MovieDetailsScreenUiState
+    object Loading : MovieDetailsScreenUiState
+}
+```
+
+Aqui, embora estejamos no mesmo viewModel, definimos uma interface para o estado de cada tela. Isso não é sempre necessário, mas, no caso da aplicação aqui apresentada, é uma solução mais simples.
+
+Como os itens `Error` e `Loading` não possuem dados, eles podem ser declarados como `object` e não `class`.
+
+Agora, o `MoviesAppViewModel` pode utilizar essas interfaces para gerar novos estados:
+
+```kotlin
+class MoviesAppViewModel(val fake: Boolean = false): ViewModel() {
+
+    var moviesScreenUiState: MoviesScreenUiState by mutableStateOf(MoviesScreenUiState.Loading)
+    var movieDetailsScreenUiState: MovieDetailsScreenUiState by mutableStateOf(MovieDetailsScreenUiState.Loading)
+
+```
+
+Inicializamos os estamos para cada tela, por padrão, como `.Loading`.
+
+A lógica de carregamento da lista de filmes pode adicionar um bloco `try` `catch` para o tratamento de qualquer erro no acesso à API:
+
+```kotlin
+    init {
+        getMovies()
+    }
+
+    private fun getMovies(){
+        viewModelScope.launch {
+            moviesScreenUiState = try {
+               val movies = MoviesApi.retrofitService.getMovies()
+                MoviesScreenUiState.Success(movies = movies)
+            }
+            catch(e: IOException){
+                MoviesScreenUiState.Error
+            }
+        }
+    }
+```
+
+Perceba que, dependendo do caso, atribuímos o valor diferente para `moviesScreenUiState`. É como se os valores `Success`, `Error` e `Loading` fossem passados como informação adicional ao objeto do estado.
+
+A função `getMovie` tem um comportamento muito parecido:
+
+```kotlin
+
+    fun getMovie(movieId:Int) {
+        movieDetailsScreenUiState = MovieDetailsScreenUiState.Loading
+        viewModelScope.launch {
+            movieDetailsScreenUiState = try{
+                delay(2000)
+                val movie = MoviesApi.retrofitService.getMovie(movieId)
+                MovieDetailsScreenUiState.Success(movie = movie)
+            }
+            catch(e: IOException) {
+                MovieDetailsScreenUiState.Error
+            }
+        }
+    }
+```
+
+Um detalhe especial é que, a cada chamada de `getMovie` reinicializamos o estado da tela com `.Loading` para que um novo carregamento seja representado ao usuário.
+
 <details>
 <summary><code>MoviesAppViewModel.kt</code></summary>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMoviesAppViewModel.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
+
+
+### Utilizando o novo estado nas telas
+
+Os componentes de tela, `MoviesScreen` e `MovieDetailsScreen` precisam, apenas, utilizar esses novos estados.
+
+Para simplificar, optamos a passagem desses estados como parâmetro para cada tela.
+
+O desenho da tela pode ser realizado com um bloco `when`, para cada tipo possível de valor de `MoviesScreenUiState`:
+```kotlin
+
+fun MoviesScreen(
+    moviesScreenUiState: MoviesScreenUiState,
+    onGoToMovieDetailsClick: (movieId:Int) -> Unit = {},
+){
+    when(moviesScreenUiState){
+        is MoviesScreenUiState.Success -> {
+            MoviesList(
+                movies = moviesScreenUiState.movies,
+                onMovieClick = onGoToMovieDetailsClick
+            )
+        }
+        is MoviesScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+        is MoviesScreenUiState.Error -> ErrorScreen( modifier = Modifier.fillMaxSize())
+    }
+}
+```
+
+Para a tela `MovieDetailsScreen` as alterações são bastante semelhantes:
+
+```kotlin
+@Composable
+fun MovieDetailsScreen(
+    movieId: Int,
+    moviesAppViewModel: MoviesAppViewModel = viewModel(),
+    movieDetailsScreenUiState: MovieDetailsScreenUiState,
+    onGoBackClick: () -> Unit = {},
+){
+    when(movieDetailsScreenUiState){
+        is MovieDetailsScreenUiState.Success -> {
+            MovieDetailsScreen(movie = movieDetailsScreenUiState.movie)
+        }
+        is MovieDetailsScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+        is MovieDetailsScreenUiState.Error -> ErrorScreen( modifier = Modifier.fillMaxSize())
+    }
+
+    LaunchedEffect(movieId) {
+        moviesAppViewModel.getMovie(movieId)
+    }
+}
+```
+
+Aqui, ainda precisamos do acesso ao `moviesAppViewModel` pois é necessário realizar a chamada à `getMovie`.
+
 <details>
 <summary><code>MoviesScreen.kt</code></summary>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMoviesScreen.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
-<details>
-<summary><code>ic_connection_error.xml</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fres%2Fdrawable%2Fic_connection_error.xml&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
-</details>
 <details>
-<summary><code>loading_img.xml</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fres%2Fdrawable%2Floading_img.xml&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+<summary><code>MovieDetailsScreen.kt</code></summary>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMovieDetailsScreen.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
 
+### Ajustes em `MoviesApp`
+
+Por fim, alguns pequenos ajustes são necessários no componente de navegação `MoviesApp`.
+
+```kotlin
+composable("movies") {
+    MoviesScreen(
+        moviesScreenUiState = moviesAppViewModel.moviesScreenUiState,
+        onGoToMovieDetailsClick = { movieId ->
+            navController.navigate("movieDetails/$movieId")
+        }
+    )
+}
+```
+
+Adicionamos o parâmetro `moviesScreenUiState` e passamos o valor atual presente em `moviesAppViewModel`.
+
+Para `MovieDetailsScreen`, as alterações são semelhantes:
+
+```kotlin
+composable(
+    route="movieDetails/{movieId}",
+    arguments = listOf(
+        navArgument ("movieId") {
+            defaultValue = 0
+            type = NavType.IntType
+        }
+    )
+) { backStackEntry ->
+    val movieId:Int? = backStackEntry.arguments?.getInt("movieId")
+
+    movieId?.let {
+        MovieDetailsScreen(
+            movieId = it,
+            moviesAppViewModel = moviesAppViewModel,
+            movieDetailsScreenUiState = moviesAppViewModel.movieDetailsScreenUiState,
+            onGoBackClick = {
+                navController.popBackStack()
+            }
+        )
+    }
+}
+```
+
+<details>
+<summary><code>MoviesApp.kt</code></summary>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F68567bdd7e9e01b2e90816dc95f58d1e1a4f7273%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+
+</details>
