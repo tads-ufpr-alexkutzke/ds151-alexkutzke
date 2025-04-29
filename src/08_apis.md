@@ -378,11 +378,44 @@ else{
 
 ## 4. Commit *MovieDetailsScreen handles api* - <a href='https://github.com/tads-ufpr-alexkutzke/ds151-aula-08-movies-api-app/commit/42a1de57c25761c754983c2089080247e629958d'>Diffs 42a1de57</a>
 
+Um detalhe importante da última atualização é o fato de que o componente `MoviesApp` está cuidando da chamada para a API. Isso gera o inconveniente de utilizarmos `LaunchedEffect` dentro de um `composable` do `NavHost`. Esses componentes de navegação devem ser simples e tratar apenas de lógicas de navegação. 
+
+Nesse caso, portanto, podemos passar o tratamento de chamadas API para o componente que necessita dessas informações, `MovieDetailsScreen`.
+
+> [!NOTE]
+> Para essa alteração, o componente `MovieDetailsScreen` precisará acessar `moviesAppViewModel`. A decisão de passar `viewModels` para componentes deve ser considerada com cuidado. Ela pode complexificar o código e tornar a testagem mais difícil. Porém, nesse caso, `moviesAppViewModel` será acessado apenas pelo componente `MovieDetailsScreen` e não por seus componentes internos.
+
+### Simplificando ` MoviesApp`
+
+No componente de navegação `MoviesApp` as alterações são simples. Basta passar toda a lógica de API para o componente `MovieDetailsScreen` que receberá, agora o `movieId`, apenas.
+
+
+```kotlin
+val movieId:Int? = backStackEntry.arguments?.getInt("movieId")
+
+if(movieId == null) Text("Carregando ...")
+else{
+    movieId.let {
+        MovieDetailsScreen(
+            movieId = it,
+            onGoBackClick = {
+                navController.popBackStack()
+            }
+        )
+    }
+```
+
+
 <details>
 <summary><code>MoviesApp.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F42a1de57c25761c754983c2089080247e629958d%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F42a1de57c25761c754983c2089080247e629958d%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt%23L25-L72&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
+
+### Acessando API no componente `MovieDetailsScreen`
+
+...
+
 <details>
 <summary><code>MovieDetailsScreen.kt</code></summary>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F42a1de57c25761c754983c2089080247e629958d%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMovieDetailsScreen.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
