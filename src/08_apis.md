@@ -49,11 +49,58 @@ Vale observar, também, que o Android, por questões de segurança, não permite
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F1f445d0395cc4d2260a180dbceb4ce0a792f71e2%2Fapp%2Fsrc%2Fmain%2FAndroidManifest.xml%23L6-9&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
+
+### Configuração do Retrofit
+
+A biblioteca Retrofit irá realizar todo o trabalho de acesso à API e conversão dos dados. Para isso, é comum colocarmos toda configuração de acesso à API (inicialização do Retrofit) em um arquivo separado. Nesse projeto, criamos o arquivo `network/MoviesApiService.kt`.
+
+
 <details>
 <summary><code>MoviesApiService.kt</code></summary>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F1f445d0395cc4d2260a180dbceb4ce0a792f71e2%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fnetwork%2FMoviesApiService.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
 
 </details>
+
+Nesse arquivo, definimos a URL base do servidor que acessaremos. No código acima, ela estava definida para meu IP local, porém, podemos atualizá-la para o servidor da API `movieisapi`:
+
+```kotlin
+private const val BASE_URL =
+    "https://movieisapi.kutzke.com.br/"
+
+```
+O trecho abaixo, mostra a configuração básica do Retrofit. Nele, passamos a URL base e determinamos um `ConverterFactory`. É esse objeto que será responsável por converter a resposta em algum tipo de dado desejado. Nesse caso, `GsonConverterFactory` irá converter o formato JSON entregue pela API em um objeto acessível pelo Kotlin (nesse caso, `List<Movie>`).
+
+```kotlin
+private val retrofit = Retrofit.Builder()
+    .addConverterFactory(GsonConverterFactory.create())
+    .baseUrl(BASE_URL)
+    .build()
+```
+
+
+Na sequência, se determina os endpoints acessível pela aplicação. Para isso, definimos uma interface e adicionamos uma função suspensa para cada endpoint, com os devidos marcadores de método (`@GET`) fornecidos pelo Retrofit:
+
+ 
+```kotlin
+interface MoviesApiService {
+    @GET("/movies")
+    suspend fun getMovies(): List<Movie>
+}
+```
+
+Por fim, define-se um `object` que será utilizado pelo resto do App para acessar a API. Esse object contem apenas uma variável que é inicializada por `retrofit.create`.
+
+Aqui, o uso de `object` e `lazy` tem uma razão de desempenho. Object irá garantir que apenas um objeto da classe `MoviesApi` será criado em toda aplicação. e o `lazy` determina que `retrofitService` só será inicializado quando for requisitado pela primeira vez. A inicialização do retrofit é uma operação cara, por isso deve ser feita apenas uma vez. 
+
+ 
+```kotlin
+object MoviesApi {
+    val retrofitService: MoviesApiService by lazy {
+        retrofit.create(MoviesApiService::class.java)
+    }
+}
+```
+
 <details>
 <summary><code>MoviesAppViewModel.kt</code></summary>
 <iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-08-movies-api-app%2Fblob%2F1f445d0395cc4d2260a180dbceb4ce0a792f71e2%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2Fmoviesapp%2FMoviesAppViewModel.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
