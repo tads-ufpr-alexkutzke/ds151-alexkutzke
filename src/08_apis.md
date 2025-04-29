@@ -1,4 +1,4 @@
-# 07 - Integração com APIs e Consumo de dados
+# 08 - Integração com APIs e Consumo de dados
 
 Nessa aula veremos como realizar requisições HTTP em uma aplicação Android com Compose.
 
