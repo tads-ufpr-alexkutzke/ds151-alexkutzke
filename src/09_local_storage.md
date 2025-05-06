@@ -94,6 +94,10 @@ A versão final da aplicação pode ser acessada no seguinte repositório:<br>
 A aplicação exemplo segue o desenvolvimento da última aula, com a adição de armazenamento local com Room.
 O objetivo da aplicação é que o usuário possa salvar localmente os dados dos filmes marcados como favoritos. Esses dados devem ser acessíveis mesmo sem acesso à internet.
 
+<p>
+  <img src="./res/images/aula_09/movies_app.gif" alt="Funcionamento do app" width="40%"/>
+</p>
+
 A organização dos arquivos nessa aplicação foi melhorada. Agora temos arquivos separados em pastas que indicam suas funções. A estrutura é a seguinte:
 
 ```
@@ -491,6 +495,13 @@ abstract class FavoriteMoviesDatabase : RoomDatabase() {
 }
 ```
 
+
+Perceba que para instanciar uma *Database* com `databaseBuilder`, precisamos de uma variável chamada `context: Context`.
+
+No desenvolvimento Android, a variável context representa uma referência ao ambiente atual do aplicativo. O context fornece acesso a recursos e funcionalidades fundamentais do sistema, como arquivos, bancos de dados, preferências, serviços do sistema e componentes da interface. Ele é essencial para muitas operações, como exibir uma tela, acessar arquivos ou iniciar novas atividades. Existem diferentes tipos de contextos, como o `ApplicationContext` (referente ao ciclo de vida do app) e o `ActivityContext` (relacionado à atividade em execução).
+
+No aplicativo exemplo, temos uma pequena alteração para que esse Contexto esteja disponível em qualquer arquivo do código. Essa alteração envolve os arquivos `MainActivity.kt`, `Application.kt` e `AppContextHolder.kt`, que serão abordados mais a frente.
+
 </details>
 
 ##### CastConverter.kt
@@ -691,29 +702,285 @@ object RemoteMoviesRepositoryProvider {
 
 ## Network
 
+A pasta `network/` armazena o arquivo para configuração do `Retrofit`. Diferentemente da última aula, agora temos endpoints para acessar reviews:
+
+```kotlin
+interface MoviesApiService {
+    @GET("/movies")
+    suspend fun getMovies(): List<Movie>
+
+    @GET("/movies/{id}")
+    suspend fun getMovie(@Path("id") id:Int): Movie
+
+    @GET("/movie/{movieId}/reviews")
+    suspend fun getReviews(@Path("movieId") movieId:Int): List<Review>
+}
+
+object MoviesApi {
+    val retrofitService: MoviesApiService by lazy {
+        retrofit.create(MoviesApiService::class.java)
+    }
+}
+```
+
+
 <details>
 <summary><code>MoviesApiService.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-09-movies-api-room-app%2Fblob%2F4fc1caa0c4c59250f7cc888d67dc1fe27b9fbe5b%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fnetwork%2FMoviesApiService.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+
+```kotlin
+package com.example.moviesapp.network
+
+import com.example.moviesapp.model.Movie
+import com.example.moviesapp.model.Review
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Path
+
+private const val BASE_URL =
+    "https://moviesapi.kutzke.com.br"
+
+private val retrofit = Retrofit.Builder()
+    .addConverterFactory(GsonConverterFactory.create())
+    .baseUrl(BASE_URL)
+    .build()
+
+interface MoviesApiService {
+    @GET("/movies")
+    suspend fun getMovies(): List<Movie>
+
+    @GET("/movies/{id}")
+    suspend fun getMovie(@Path("id") id:Int): Movie
+
+    @GET("/movie/{movieId}/reviews")
+    suspend fun getReviews(@Path("movieId") movieId:Int): List<Review>
+}
+
+object MoviesApi {
+    val retrofitService: MoviesApiService by lazy {
+        retrofit.create(MoviesApiService::class.java)
+    }
+}
+```
 
 </details>
 
-## Utils
+### Utils
+
+O arquivo `utils/MapperExtensions.kt` é opcional. Ele realizar conversões entre dados locais e modelos da aplicação. Mas esse tipo de conversão não precisa ser utilizado. Por exemplo, o DAO poderia retornar diretamente um tipo Movie.
+
+Porém, para que a abstração fique ainda mais evidente, fizemos uso dessa conversão.
+
+```kotlin
+fun Movie.toFavoriteEntity() = FavoriteMovieEntity(
+    id, title, cast, director, synopsis, posterUrl
+)
+
+fun FavoriteMovieEntity.toMovie() = Movie(
+    id, title, cast, director, synopsis, posterUrl
+)
+```
 
 <details>
 <summary><code>MapperExtensions.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-09-movies-api-room-app%2Fblob%2F4fc1caa0c4c59250f7cc888d67dc1fe27b9fbe5b%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Futils%2FMapperExtensions.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+
+``` kotlin
+package com.example.moviesapp.utils
+
+import com.example.moviesapp.model.Movie
+import com.example.moviesapp.data.local.FavoriteMovieEntity
+
+fun Movie.toFavoriteEntity() = FavoriteMovieEntity(
+    id, title, cast, director, synopsis, posterUrl
+)
+
+fun FavoriteMovieEntity.toMovie() = Movie(
+    id, title, cast, director, synopsis, posterUrl
+)
+```
 
 </details>
 
 ## Ui
 
+A partir daqui, os arquivos seguem, mais ou menos, o padrão da última aula. As telas foram, apenas, incrementadas.
+
+Talvez a maior diferença seja que, agora, **temos um `ViewModel` para cada tela**. Essa é uma prática comum e permite que os `composables` de navegação
+permaneçam simples, cuidando apenas da própria navegação.
+
+Outra diferença é que, nessa versão, a navegação envolve uma *topBar* e uma *bottomBar*, definidas no `Scaffold` da tela. Essa é uma composição
+comum, garantido a aplicação uma navegabilidade conhecida nos dispositivos Android.
+
 <details>
 <summary><code>MoviesApp.kt</code></summary>
-<iframe frameborder="0" scrolling="yes" style="width:100%; height:478px;" allow="clipboard-write" src="https://emgithub.com/iframe.html?target=https%3A%2F%2Fgithub.com%2Ftads-ufpr-alexkutzke%2Fds151-aula-09-movies-api-room-app%2Fblob%2F4fc1caa0c4c59250f7cc888d67dc1fe27b9fbe5b%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2Fexample%2Fmoviesapp%2Fui%2FMoviesApp.kt&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></iframe>
+
+```kotlin
+package com.example.moviesapp.ui
+
+import android.util.Log
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.moviesapp.model.Movie
+import com.example.moviesapp.model.fourMovies
+import com.example.moviesapp.ui.moviesapp.MovieDetailsScreen
+import com.example.moviesapp.ui.moviesapp.MoviesScreen
+import com.example.moviesapp.ui.theme.MoviesAppTheme
+
+sealed class BottomNavScreen(val route: String, val label: String, val icon: ImageVector) {
+    object MovieList : BottomNavScreen("movie_list", "Filmes", Icons.Filled.List)
+    object Favorites : BottomNavScreen("favorites", "Favoritos", Icons.Filled.Favorite)
+    companion object { val values = listOf(MovieList, Favorites) }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MoviesApp() {
+    val navController = rememberNavController()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
+    val bottomNavRoutes = BottomNavScreen.values.map { it.route }
+
+    Scaffold(
+        topBar = {
+            val topBarTitle = when {
+                currentRoute?.startsWith("movie") == true -> "Filmes"
+                currentRoute?.startsWith("favorites") == true -> "Favoritos"
+                else -> ""
+            }
+            val showBack = currentRoute != null && bottomNavRoutes.none { currentRoute == it }
+
+            TopAppBar(
+                    title = { Text(text = topBarTitle) },
+                    navigationIcon = {
+                        if(showBack) {
+                            IconButton(
+                                onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Localized description"
+                                )
+                            }
+                        }
+                        else null
+                    },
+                )
+
+        },
+        bottomBar = {
+            NavigationBar {
+                BottomNavScreen.values.forEach { screen ->
+                    NavigationBarItem(
+                        icon = { Icon(screen.icon, contentDescription = screen.label) },
+                        label = { Text(screen.label) },
+                        selected = (currentRoute == screen.route),
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = BottomNavScreen.MovieList.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(BottomNavScreen.MovieList.route) {
+                MoviesScreen(
+                    onGoToMovieDetailsClick = { movieId ->
+                        navController.navigate("movie_list/$movieId")
+                    }
+                )
+            }
+            composable(BottomNavScreen.Favorites.route) {
+                FavoriteMoviesScreen()
+            }
+            composable(
+                route="movie_list/{movieId}",
+                arguments = listOf(
+                    navArgument ("movieId") {
+                        defaultValue = 0
+                        type = NavType.IntType
+                    }
+                )
+            ) { backStackEntry ->
+                val movieId:Int? = backStackEntry.arguments?.getInt("movieId")
+
+                movieId?.let {
+                    MovieDetailsScreen(
+                        movieId = it,
+                        onGoBackClick = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FavoriteMoviesScreen(
+    movies: List<Movie> = fourMovies,
+) {
+    Column {
+        Text("Filmes Favoritos", style = MaterialTheme.typography.displayMedium)
+        if (movies.isEmpty()) Text("Nenhum favorito.")
+        movies.forEach { movie -> Text(movie.title) }
+    }
+}
+
+@Preview
+@Composable
+fun MoviesAppPreview(){
+    MoviesAppTheme{
+        MoviesApp()
+    }
+}
+```
+
 
 </details>
 
 ### ui/moviesapp
+
+As telas `MoviesScreen` e `MovieDetailsScreen` foram remodeladas:
+
+<p>
+  <img src="./res/images/aula_09/MoviesScreen.png" alt="Tela MoviesScreen" width="40%"/>
+  <img src="./res/images/aula_09/MovieDetailsScreen.png" alt="Tela MovieDetailsScreen" width="40%"/>
+</p>
 
 <details>
 <summary><code>MoviesScreen.kt</code></summary>
