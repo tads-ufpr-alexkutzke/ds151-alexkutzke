@@ -106,7 +106,7 @@ A avaliação será em duas partes.
     - **Documentação e código fonte:** Clareza e cobertura ampla das informações técnicas e bom gerenciamento do versionamento do código.
 
 2. **Avaliação do processo de desenvolvimento** (30% da nota):
-    - 4x checkpoints nas aulas dos dias 21/05, 28/05, 04/06 e 11/06: 
+    - 4x checkpoints nas aulas dos dias **21/05, 28/05, 04/06 e 11/06**. 
 
 Os **checkpoints** poderão ser realizados de **duas formas**:
 
