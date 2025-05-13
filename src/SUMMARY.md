@@ -10,8 +10,9 @@
 - [Navegação entre Telas com Compose](./07_navegacao.md)
 - [Integração com APIs e Consumo de Dados](./08_apis.md)
 - [Armazenamento Local com Room](./09_local_storage.md)
-<!--- [Arquiteturas Android e Padrões de Projeto](./10_arquiteturas.md)
-- [Testes em Aplicações Android](./11_testes.md)
+- [Arquitetura de Aplicações Android e Outros Conceitos Importantes](./10_arquiteturas.md)
+<!--- [Especificação Trabalho Prático](./13_projeto.md) -->
+<!--- [Testes em Aplicações Android](./11_testes.md)
 - [Componentes Avançados e Animações com Compose](./12_animacoes.md)
 - [Desenvolvimento Orientado ao Projeto Final](./13_projeto.md)
 - [Dia de Prova – Criação de Aplicativo em Aula](./14_prova.md)
